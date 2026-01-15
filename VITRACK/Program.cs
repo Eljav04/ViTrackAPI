@@ -35,6 +35,7 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "ViTrackAPI v1");
     });
+    await app.ApplyMigrationsAndSeedRolesAsync();
 }
 
 app.UseHttpsRedirection();
