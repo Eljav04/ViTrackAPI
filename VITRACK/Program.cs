@@ -1,8 +1,8 @@
 
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VITRACK.Api.Extensions;
 using VITRACK.Infrastructure.Data;
-using VITRACK.Infrastructure.Entities;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -21,9 +21,10 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
-builder.Services.AddIdentity<User, IdentityRole>()
-.AddEntityFrameworkStores<AppDbContext>();
 
+// ===== Add Idenity Configuration =====
+builder.Services.AddApplicationIdentity();
+// ===== Add Idenity Configuration =====
 
 var app = builder.Build();
 
