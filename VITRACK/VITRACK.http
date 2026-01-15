@@ -1,0 +1,6 @@
+@VITRACK_HostAddress = http://localhost:5286
+
+GET {{VITRACK_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
