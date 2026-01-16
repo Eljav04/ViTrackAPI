@@ -9,7 +9,7 @@ public enum ErrorCodeEnum
     EMAIL_PASSWORD_ERROR,
     LOCKED_OUT_ERROR,
     USER_NOT_FOUND,
-    FACT_NOT_FOUND,
+    NOT_FOUND,
     INTERNAL_SERVER_ERROR,
 }
 

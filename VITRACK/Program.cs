@@ -24,6 +24,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 // ===== Add Idenity Configuration =====
 builder.Services.AddApplicationIdentity();
+// Register application repositories
+builder.Services.AddApplicationRepositories();
 // ===== Add Idenity Configuration =====
 
 var app = builder.Build();
