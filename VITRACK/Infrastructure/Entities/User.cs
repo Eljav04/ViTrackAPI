@@ -25,6 +25,9 @@ public sealed class User : IdentityUser
     // === Navigation Properties ===
     public Department? Department { get; set; }
     public int? DepartmentId { get; set; }
+
+    public WorkSchedule? WorkSchedule { get; set; }
+    public int? WorkScheduleId { get; set; }
     // === Navigation Properties ===
 
 

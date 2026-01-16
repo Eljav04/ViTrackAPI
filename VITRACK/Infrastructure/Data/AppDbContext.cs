@@ -9,6 +9,7 @@ public sealed class AppDbContext : IdentityDbContext<User>
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Department> Departments => Set<Department>();
+    public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -21,6 +22,14 @@ public sealed class AppDbContext : IdentityDbContext<User>
             .HasForeignKey(u => u.DepartmentId)
             .OnDelete(DeleteBehavior.SetNull);
         // === Department Entity Configuration ===
+
+        // === WorkSchedule Entity Configuration ===
+        builder.Entity<WorkSchedule>()
+            .HasMany<User>()
+            .WithOne(u => u.WorkSchedule)
+            .HasForeignKey(u => u.WorkScheduleId)
+            .OnDelete(DeleteBehavior.SetNull);
+        // === WorkSchedule Entity Configuration ===
 
     }
 }
