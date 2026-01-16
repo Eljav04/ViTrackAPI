@@ -9,6 +9,7 @@ public static class RepositoryRegistrationExtension
     public static IServiceCollection AddApplicationRepositories(this IServiceCollection services)
     {
         services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+        services.AddScoped<IWorkScheduleRepository, WorkScheduleRepository>();
         return services;
     }
 }
