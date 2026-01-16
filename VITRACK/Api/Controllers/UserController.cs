@@ -1,10 +1,12 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using VITRACK.Api.Errors;
 using VITRACK.Infrastructure.Entities;
 
 namespace VITRACK.Api.Controllers;
 
-[Route("api/[controller]")]
+[Route("api/user")]
+[ApiController]
 public class UserController : ControllerBase
 {
     UserManager<User> _userManager { get; set; }
@@ -16,10 +18,15 @@ public class UserController : ControllerBase
         _userManager = userManager;
     }
 
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    [HttpGet("registr")]
+    public async Task<IActionResult> Registr()
     {
-        return Ok("Work");
+        // return Ok("Work");
+        return Ok(new ResponseErrors
+        {
+            ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
+            Message = ErrorCodes.INPUT_ERROR
+        });
     }
 
 
