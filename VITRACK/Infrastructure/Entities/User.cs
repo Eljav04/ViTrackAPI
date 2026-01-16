@@ -22,4 +22,10 @@ public sealed class User : IdentityUser
     // After deleting user this value must be true
     public bool IsDeleted { get; set; } = false;
 
+    // === Navigation Properties ===
+    public Department? Department { get; set; }
+    public int? DepartmentId { get; set; }
+    // === Navigation Properties ===
+
+
 }
