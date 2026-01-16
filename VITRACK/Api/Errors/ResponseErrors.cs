@@ -7,3 +7,5 @@ public class ResponseErrors
     public string? ErrorCode { get; private set; }
     public string? Message { get; set; }
 }
+
+
