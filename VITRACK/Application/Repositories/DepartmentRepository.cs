@@ -46,4 +46,31 @@ public sealed class DepartmentRepository : IDepartmentRepository
         _db.Departments.Remove(existing);
         await _db.SaveChangesAsync();
     }
+
+    public async Task<bool> AssignUserToDepartmentAsync(int departmentId, string userId)
+    {
+        var department = await _db.Departments.FindAsync(departmentId);
+        if (department is null) return false;
+
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null) return false;
+
+        user.DepartmentId = departmentId;
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> RemoveUserFromDepartmentAsync(int departmentId, string userId)
+    {
+        var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+        if (user is null) return false;
+
+        if (user.DepartmentId != departmentId) return false;
+
+        user.DepartmentId = null;
+        _db.Users.Update(user);
+        await _db.SaveChangesAsync();
+        return true;
+    }
 }

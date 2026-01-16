@@ -72,4 +72,35 @@ public class DepartmentController : ControllerBase
         await _repository.DeleteAsync(id);
         return NoContent();
     }
+
+    [HttpPost("assign-user")]
+    public async Task<IActionResult> AssignUser([FromBody] DepartmentAssignUserBodyDTO dto)
+    {
+        if (!ModelState.IsValid)
+            return BadRequest(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR, Message = ErrorCodes.INPUT_ERROR });
+
+        var dept = await _repository.GetByIdAsync(dto.DepartmentId);
+        if (dept is null)
+            return NotFound(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.NOT_FOUND, Message = "Departament tapılmadı." });
+
+        var success = await _repository.AssignUserToDepartmentAsync(dto.DepartmentId, dto.UserId);
+        if (!success)
+            return NotFound(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.USER_NOT_FOUND, Message = ErrorCodes.USER_NOT_FOUND });
+
+        return NoContent();
+    }
+
+    [HttpDelete("remove-user")]
+    public async Task<IActionResult> RemoveUser([FromBody] DepartmentRemoveUserBodyDTO dto)
+    {
+        var dept = await _repository.GetByIdAsync(dto.DepartmentId);
+        if (dept is null)
+            return NotFound(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.NOT_FOUND, Message = "Departament tapılmadı." });
+
+        var success = await _repository.RemoveUserFromDepartmentAsync(dto.DepartmentId, dto.UserId);
+        if (!success)
+            return NotFound(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.USER_NOT_FOUND, Message = ErrorCodes.USER_NOT_FOUND });
+
+        return NoContent();
+    }
 }

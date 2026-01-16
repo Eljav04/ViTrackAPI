@@ -11,4 +11,6 @@ public interface IDepartmentRepository
     Task<Department> CreateAsync(Department department);
     Task UpdateAsync(Department department);
     Task DeleteAsync(int id);
+    Task<bool> AssignUserToDepartmentAsync(int departmentId, string userId);
+    Task<bool> RemoveUserFromDepartmentAsync(int departmentId, string userId);
 }
