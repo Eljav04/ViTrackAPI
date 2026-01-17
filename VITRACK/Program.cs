@@ -22,11 +22,18 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
 
-// ===== Add Idenity Configuration =====
+// ===== Extensions =====
+// Add Idenity Configuration
 builder.Services.AddApplicationIdentity();
 // Register application repositories
 builder.Services.AddApplicationRepositories();
-// ===== Add Idenity Configuration =====
+// Add JWT Authentication
+var secretKey = builder.Configuration.GetSection("AppSettings:jwt_secret_key").Value;
+if (string.IsNullOrEmpty(secretKey))
+    throw new Exception("Jwt Secret Key not found!");
+builder.Services.AddJwtAuthentication(secretKey);
+// ===== Extensions =====
+
 
 var app = builder.Build();
 
@@ -43,6 +50,8 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.UseAuthentication();
 
 
 app.Run();
