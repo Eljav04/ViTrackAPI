@@ -4,7 +4,9 @@ using VITRACK.Api.Errors;
 using VITRACK.Infrastructure.Entities;
 using VITRACK.Api.DTOs.Users;
 using VITRACK.Common.Helpers;
-using Azure;
+using System.Security.Claims;
+using VITRACK.Api.DTOs.Auth;
+using VITRACK.Common.Services;
 
 namespace VITRACK.Api.Controllers;
 
@@ -19,6 +21,30 @@ public class UserController : ControllerBase
     )
     {
         _userManager = userManager;
+    }
+
+    [HttpGet("me")]
+    public async Task<IActionResult> GetMe()
+    {
+        ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
+        UserInfo? info = JwtService.GetCurrentUserInfo(identity);
+
+        User? user = await _userManager.FindByIdAsync(info.Id);
+
+        if (user is null || user.IsDeleted)
+        {
+            return BadRequest();
+        }
+
+        UserMeDTO userMeDTO = new()
+        {
+            Firstname = user.Firstname,
+            Lastname = user.Surname,
+            Role = info.Role
+        };
+
+        return Ok(userMeDTO);
+
     }
 
     [HttpPost("registr")]

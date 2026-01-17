@@ -88,4 +88,25 @@ public class AuthController : ControllerBase
             Message = ErrorCodes.LOGIN_PASSWORD_ERROR
         });
     }
+
+    [HttpPost("logout")]
+    public IActionResult LogOut()
+    {
+        var cookieOptions = new CookieOptions
+        {
+            // These MUST match the options used when creating the cookie
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Path = "/"
+        };
+
+        // Pass the options to the Delete method
+        Response.Cookies.Delete("auth_token", cookieOptions);
+
+        return Ok(new
+        {
+            message = "success"
+        });
+    }
 }
