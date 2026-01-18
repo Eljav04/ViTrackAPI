@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VITRACK.Api.DTOs.Departments;
 using VITRACK.Api.Errors;
@@ -8,6 +9,7 @@ namespace VITRACK.Api.Controllers;
 
 [Route("api/department")]
 [ApiController]
+[Authorize]
 public class DepartmentController : ControllerBase
 {
     private readonly IDepartmentRepository _repository;

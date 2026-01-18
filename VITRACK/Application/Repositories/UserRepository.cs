@@ -17,10 +17,10 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync()
+    public async Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false)
     {
         var result = await _context.Users
-            .Where(u => !u.IsDeleted)
+            .Where(u => u.IsDeleted == isDeleted)
             .Join(
                 _context.UserRoles,
                 user => user.Id,
@@ -55,6 +55,7 @@ public class UserRepository : IUserRepository
             )
             .Select(x => new UserFullDataDTO
             {
+                Id = x.user.Id,
                 Firstname = x.user.Firstname,
                 Lastname = x.user.Surname,
                 Role = x.role.Name,

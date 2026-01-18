@@ -8,6 +8,7 @@ using System.Security.Claims;
 using VITRACK.Api.DTOs.Auth;
 using VITRACK.Common.Services;
 using Microsoft.AspNetCore.Authorization;
+using VITRACK.Application.Interfaces;
 
 namespace VITRACK.Api.Controllers;
 
@@ -17,11 +18,14 @@ namespace VITRACK.Api.Controllers;
 public class UserController : ControllerBase
 {
     UserManager<User> _userManager { get; set; }
+    IUserRepository _userRepository { get; set; }
 
     public UserController(
-        UserManager<User> userManager
+        UserManager<User> userManager,
+        IUserRepository userRepository
     )
     {
+        _userRepository = userRepository;
         _userManager = userManager;
     }
 
@@ -56,6 +60,7 @@ public class UserController : ControllerBase
 
 
     [HttpGet("all")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> GetAllUsers([FromQuery] bool IsDeleted = false)
     {
         var users = _userManager.Users.Where(u => u.IsDeleted == IsDeleted).ToList();
@@ -77,7 +82,17 @@ public class UserController : ControllerBase
         return Ok(result);
     }
 
+    [HttpGet("all-detailed")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> GetAllDetailedUsers([FromQuery] bool IsDeleted = false)
+    {
+        var users = await _userRepository.GetAllUsersWithDetailsAsync(IsDeleted);
+        return Ok(users);
+    }
+
+
     [HttpPost("registr")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> Registr([FromBody] UserRegistrDTO userRegistrDTO)
     {
         User? existingUser = await _userManager.FindByNameAsync(userRegistrDTO.Login);
@@ -124,6 +139,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPost("registr-admin")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> RegistrAdmin([FromBody] UserRegistrDTO userRegistrDTO)
     {
         User? existingUser = await _userManager.FindByNameAsync(userRegistrDTO.Login);
@@ -167,6 +183,68 @@ public class UserController : ControllerBase
             Message = ErrorCodes.UNXEPECTED_ERROR
         });
     }
+
+    [HttpPut("change-password/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> ChangePassword([FromRoute] string id, [FromBody] string NewPassword)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.USER_NOT_FOUND,
+                Message = ErrorCodes.USER_NOT_FOUND
+            });
+        }
+
+        var newPasswordHash = _userManager.PasswordHasher.HashPassword(user, NewPassword);
+        user.PasswordHash = newPasswordHash;
+        await _userManager.UpdateAsync(user);
+
+        return Ok("Parol uğurla dəyişdirildi.");
+    }
+
+    [HttpDelete("delete/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> DeleteUser([FromRoute] string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null || user.IsDeleted)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.USER_NOT_FOUND,
+                Message = ErrorCodes.USER_NOT_FOUND
+            });
+        }
+
+        user.IsDeleted = true;
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
+    [HttpPut("restore/{id}")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> RestoreUser([FromRoute] string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null || !user.IsDeleted)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.USER_NOT_FOUND,
+                Message = ErrorCodes.USER_NOT_FOUND
+            });
+        }
+
+        user.IsDeleted = false;
+        await _userManager.UpdateAsync(user);
+
+        return NoContent();
+    }
+
 
 
 }
