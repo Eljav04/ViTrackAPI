@@ -7,11 +7,13 @@ using VITRACK.Common.Helpers;
 using System.Security.Claims;
 using VITRACK.Api.DTOs.Auth;
 using VITRACK.Common.Services;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VITRACK.Api.Controllers;
 
 [Route("api/user")]
 [ApiController]
+[Authorize]
 public class UserController : ControllerBase
 {
     UserManager<User> _userManager { get; set; }
@@ -28,6 +30,11 @@ public class UserController : ControllerBase
     {
         ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
         UserInfo? info = JwtService.GetCurrentUserInfo(identity);
+        if (info?.Id is null) return StatusCode(500, new ResponseErrors
+        {
+            ErrorCodeSetter = ErrorCodeEnum.INTERNAL_SERVER_ERROR,
+            Message = ErrorCodes.INTERNAL_SERVER_ERROR
+        });
 
         User? user = await _userManager.FindByIdAsync(info.Id);
 
@@ -45,6 +52,29 @@ public class UserController : ControllerBase
 
         return Ok(userMeDTO);
 
+    }
+
+
+    [HttpGet("all")]
+    public async Task<IActionResult> GetAllUsers([FromQuery] bool IsDeleted = false)
+    {
+        var users = _userManager.Users.Where(u => u.IsDeleted == IsDeleted).ToList();
+        var result = new List<UserMeDTO>();
+
+        foreach (var user in users)
+        {
+            var roles = await _userManager.GetRolesAsync(user);
+            var role = roles.FirstOrDefault() ?? string.Empty;
+
+            result.Add(new UserMeDTO
+            {
+                Firstname = user.Firstname,
+                Lastname = user.Surname,
+                Role = role
+            });
+        }
+
+        return Ok(result);
     }
 
     [HttpPost("registr")]

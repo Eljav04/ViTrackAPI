@@ -32,6 +32,8 @@ var secretKey = builder.Configuration.GetSection("AppSettings:jwt_secret_key").V
 if (string.IsNullOrEmpty(secretKey))
     throw new Exception("Jwt Secret Key not found!");
 builder.Services.AddJwtAuthentication(secretKey);
+// Add CORS Policy
+builder.Services.AddAllowedSpecificOrigins();
 // ===== Extensions =====
 
 
@@ -47,7 +49,7 @@ if (app.Environment.IsDevelopment())
     });
     await app.ApplyMigrationsAndSeedRolesAsync();
 }
-
+app.UseCors("AllowSpecificOrigins");
 app.UseHttpsRedirection();
 app.MapControllers();
 
