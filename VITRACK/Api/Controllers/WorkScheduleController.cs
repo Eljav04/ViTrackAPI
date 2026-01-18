@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VITRACK.Api.DTOs.WorkSchedules;
 using VITRACK.Api.Errors;
@@ -8,6 +9,7 @@ namespace VITRACK.Api.Controllers;
 
 [Route("api/workschedule")]
 [ApiController]
+[Authorize]
 public class WorkScheduleController : ControllerBase
 {
     private readonly IWorkScheduleRepository _repository;
