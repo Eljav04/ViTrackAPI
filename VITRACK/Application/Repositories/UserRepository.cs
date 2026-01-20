@@ -75,4 +75,21 @@ public class UserRepository : IUserRepository
 
         return result;
     }
+
+    public async Task UpdateAsync(UserEditDTO userDto)
+    {
+        var user = await _context.Users.FindAsync(userDto.Id);
+        if (user == null)
+            throw new KeyNotFoundException("User not found.");
+
+        user.Firstname = userDto.Firstname;
+        user.Surname = userDto.Lastname;
+        user.UserName = userDto.Login;
+        user.DepartmentId = userDto.DepartmentId;
+        user.WorkScheduleId = userDto.WorkScheduleId;
+
+        _context.Users.Update(user);
+        await _context.SaveChangesAsync();
+    }
+
 }

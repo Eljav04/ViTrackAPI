@@ -9,7 +9,7 @@ namespace VITRACK.Api.Controllers;
 
 [Route("api/department")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = Roles.Admin)]
 public class DepartmentController : ControllerBase
 {
     private readonly IDepartmentRepository _repository;

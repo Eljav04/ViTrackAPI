@@ -184,6 +184,14 @@ public class UserController : ControllerBase
         });
     }
 
+    [HttpPut("update")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Update([FromBody] UserEditDTO userDto)
+    {
+        await _userRepository.UpdateAsync(userDto);
+        return Ok("Istifadəçi uğurla yeniləndi.");
+    }
+
     [HttpPut("change-password/{id}")]
     [Authorize(Roles = Roles.Admin)]
     public async Task<IActionResult> ChangePassword([FromRoute] string id, [FromBody] string NewPassword)
