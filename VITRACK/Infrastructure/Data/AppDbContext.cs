@@ -10,6 +10,7 @@ public sealed class AppDbContext : IdentityDbContext<User>
 
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
+    public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -30,6 +31,14 @@ public sealed class AppDbContext : IdentityDbContext<User>
             .HasForeignKey(u => u.WorkScheduleId)
             .OnDelete(DeleteBehavior.SetNull);
         // === WorkSchedule Entity Configuration ===
+
+        // === AttendanceRecord Entity Configuration ===
+        builder.Entity<AttendanceRecord>()
+            .HasOne(ar => ar.Employee)
+            .WithMany(u => u.AttendanceRecords)
+            .HasForeignKey(ar => ar.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+        // === AttendanceRecord Entity Configuration ===
 
     }
 }
