@@ -8,6 +8,7 @@ public interface IWorkScheduleRepository
 {
     Task<IEnumerable<WorkSchedule>> GetAllAsync();
     Task<WorkSchedule?> GetByIdAsync(int id);
+    Task<WorkSchedule?> GetByUserAsync(string userId);
     Task<WorkSchedule> CreateAsync(WorkSchedule workSchedule);
     Task UpdateAsync(WorkSchedule workSchedule);
     Task DeleteAsync(int id);

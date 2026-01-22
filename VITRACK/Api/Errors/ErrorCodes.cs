@@ -11,6 +11,7 @@ public enum ErrorCodeEnum
     USER_NOT_FOUND,
     NOT_FOUND,
     INTERNAL_SERVER_ERROR,
+    ATTENDANCE_RECORD_ALREADY_EXISTS,
 }
 
 public static class ErrorCodes
@@ -22,6 +23,7 @@ public static class ErrorCodes
     public const string LOCKED_OUT_ERROR = "Hesab müvəqqəti olaraq bloklanıb.";
     public const string USER_NOT_FOUND = "İstifadəçi tapılmadı.";
     public const string INTERNAL_SERVER_ERROR = "Daxili server xətası.";
+    public const string ATTENDANCE_RECORD_ALREADY_EXISTS = "Bu tarix üçün qeyd artıq mövcuddur.";
 
 }
 
