@@ -12,6 +12,7 @@ public enum ErrorCodeEnum
     NOT_FOUND,
     INTERNAL_SERVER_ERROR,
     ATTENDANCE_RECORD_ALREADY_EXISTS,
+    ATTENDANCE_RECORD_NOT_FOUND
 }
 
 public static class ErrorCodes
@@ -24,6 +25,7 @@ public static class ErrorCodes
     public const string USER_NOT_FOUND = "İstifadəçi tapılmadı.";
     public const string INTERNAL_SERVER_ERROR = "Daxili server xətası.";
     public const string ATTENDANCE_RECORD_ALREADY_EXISTS = "Bu tarix üçün qeyd artıq mövcuddur.";
+    public const string ATTENDANCE_RECORD_NOT_FOUND = "Bu tarix üçün qeyd tapılmadı.";
 
 }
 
