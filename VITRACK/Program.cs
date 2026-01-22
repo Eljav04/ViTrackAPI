@@ -1,5 +1,6 @@
 
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using VITRACK.Api.Extensions;
 using VITRACK.Infrastructure.Data;
 
@@ -50,8 +51,23 @@ if (app.Environment.IsDevelopment())
     await app.ApplyMigrationsAndSeedRolesAsync();
 }
 app.UseCors("AllowSpecificOrigins");
+
+// Enable serving static files (for image uploads)
+app.UseStaticFiles();
+app.UseDefaultFiles();
+
+app.UseStaticFiles(new StaticFileOptions()
+{
+    FileProvider = new PhysicalFileProvider(Path.Combine(
+        app.Environment.WebRootPath, @"uploads")),
+    RequestPath = new PathString("/uploads")
+});
+
 app.UseHttpsRedirection();
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
+
 
 app.UseAuthentication();
 app.UseAuthorization();

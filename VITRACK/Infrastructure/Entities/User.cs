@@ -28,6 +28,8 @@ public sealed class User : IdentityUser
 
     public WorkSchedule? WorkSchedule { get; set; }
     public int? WorkScheduleId { get; set; }
+
+    public ICollection<AttendanceRecord>? AttendanceRecords { get; set; }
     // === Navigation Properties ===
 
 
