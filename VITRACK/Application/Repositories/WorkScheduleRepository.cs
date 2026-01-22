@@ -26,6 +26,16 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
         return await _db.WorkSchedules.FindAsync(id);
     }
 
+    public async Task<WorkSchedule?> GetByUserAsync(string userId)
+    {
+        var user = await _db.Users
+            .AsNoTracking()
+            .Include(u => u.WorkSchedule)
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        return user?.WorkSchedule;
+    }
+
     public async Task<WorkSchedule> CreateAsync(WorkSchedule workSchedule)
     {
         var entry = await _db.WorkSchedules.AddAsync(workSchedule);

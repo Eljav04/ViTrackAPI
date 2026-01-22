@@ -1,9 +1,10 @@
 
+using VITRACK.Application.Interfaces;
 using VITRACK.Common.Helpers;
 
-namespace BIEML.Core.Services
+namespace VITRACK.Common.Services
 {
-    public class ImageService
+    public class ImageService : IImageService
     {
         private readonly IWebHostEnvironment _webHostEnvironment;
 

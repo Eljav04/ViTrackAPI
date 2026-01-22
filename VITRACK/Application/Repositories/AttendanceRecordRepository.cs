@@ -31,6 +31,17 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
         await _db.SaveChangesAsync();
     }
 
+    public async Task<AttendanceRecord?> GetByDateAsync(string employeeId, DateOnly date)
+    {
+        return await _db.AttendanceRecords
+            .FirstOrDefaultAsync(ar => ar.EmployeeId == employeeId && ar.Date == date);
+    }
+
+    public async Task<AttendanceRecord?> GetByIdAsync(int id)
+    {
+        return await _db.AttendanceRecords.FirstOrDefaultAsync(ar => ar.Id == id);
+    }
+
     public async Task UpdateAsync(AttendanceRecord attendanceRecord)
     {
         _db.AttendanceRecords.Update(attendanceRecord);
