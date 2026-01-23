@@ -18,7 +18,6 @@ namespace VITRACK.Common.Services
             if (image == null || image.Length == 0)
                 return null;
 
-            string curdir = Directory.GetCurrentDirectory();
             string uploadsFolder = Path.Combine(_webHostEnvironment.WebRootPath, $"uploads/{folderName}");
 
             if (!Directory.Exists(uploadsFolder))
@@ -26,7 +25,12 @@ namespace VITRACK.Common.Services
                 Directory.CreateDirectory(uploadsFolder);
             }
 
-            string uniqueFileName = $"{Guid.NewGuid().ToString("N").Substring(0, 15)}_{TimeHelper.GetBakuTime()}";
+            string uniqueFileName =
+                Guid.NewGuid().ToString("N").Substring(0, 15)
+                + "_"
+                + TimeHelper.GetBakuTime()
+                + Path.GetExtension(image.FileName);
+
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
 
             using (var fileStream = new FileStream(filePath, FileMode.Create))

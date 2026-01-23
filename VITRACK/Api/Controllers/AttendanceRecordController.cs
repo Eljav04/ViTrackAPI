@@ -7,6 +7,7 @@ using VITRACK.Api.DTOs.Auth;
 using VITRACK.Api.Errors;
 using VITRACK.Application.Interfaces;
 using VITRACK.Common.Helpers;
+using VITRACK.Common.RequestFeatures;
 using VITRACK.Common.Services;
 using VITRACK.Infrastructure.Entities;
 
@@ -31,7 +32,76 @@ public class AttendanceRecordController : ControllerBase
         _workScheduleRepository = workScheduleRepository;
     }
 
-    [HttpPost("chek-in")]
+    [HttpGet("get-by-id/{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetById([FromRoute] int id)
+    {
+        var record = await _repository.GetByIdAsync(id);
+        if (record is null)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_NOT_FOUND,
+                Message = ErrorCodes.ATTENDANCE_RECORD_NOT_FOUND
+            });
+        }
+        return Ok(record);
+    }
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAll([FromQuery] AttendanceParametrs attendanceParametrs)
+    {
+        var records = await _repository.GetAllAsync(attendanceParametrs);
+        return Ok(new
+        {
+            items = records,
+            metaData = records.MetaData
+        });
+    }
+
+    [HttpGet("get-my-records")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetMyRecords([FromQuery] AttendanceParametrs attendanceParametrs)
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+
+        var records = await _repository.GetByEmployeeIdAsync(userInfo.Id, attendanceParametrs);
+        return Ok(new
+        {
+            items = records,
+            metaData = records.MetaData
+        });
+    }
+
+    [HttpGet("get-current-status")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetCurrentStatus()
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+
+        var existRecord = await _repository.GetByDateAsync(userInfo.Id, TimeHelper.GetBakuDate());
+        CurrentAttendance currentAttendance = new();
+
+        if (existRecord is not null)
+        {
+            currentAttendance.Date = existRecord.Date;
+            currentAttendance.ArrivalTime = existRecord.ArrivalTime;
+            currentAttendance.LeaveTime = existRecord.LeaveTime;
+            currentAttendance.IsLate = existRecord.IsLate;
+            currentAttendance.IsEarlyLeave = existRecord.IsEarlyLeave;
+        }
+
+        return Ok(currentAttendance);
+    }
+
+    [HttpPost("check-in")]
     [Authorize(Roles = "User")]
     public async Task<IActionResult> CheckIn([FromForm] CheckInRequest request)
     {
@@ -132,5 +202,101 @@ public class AttendanceRecordController : ControllerBase
         var createdRecord = await _repository.CreateAsync(newRecord);
         return Ok(createdRecord);
     }
+
+    [HttpPost("check-out")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> CheckOut([FromForm] CheckOutRequest request)
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+        string? imgEndPath = null;
+
+        var existRecord = await _repository.GetByDateAsync(userInfo.Id, TimeHelper.GetBakuDate());
+
+        if (existRecord is null)
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_NOT_FOUND,
+                Message = ErrorCodes.ATTENDANCE_RECORD_NOT_FOUND
+            });
+        if (existRecord.UpdatedAt is not null)
+        {
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_ALREADY_EXISTS,
+                Message = ErrorCodes.ATTENDANCE_RECORD_ALREADY_EXISTS
+            });
+        }
+
+        // Handling leave image upload
+        if (request.LeaveImg is not null)
+        {
+            FileParamsValidator fileValidator = new()
+            {
+                AllowImage = true,
+                MaxFileSize = 15,
+                AllowNullable = true
+            };
+
+            if (!fileValidator.IsValidFile(request.LeaveImg))
+            {
+                return BadRequest(new ResponseErrors
+                {
+                    ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
+                    Message = fileValidator.ErrorMessage
+                });
+            }
+
+            try
+            {
+                imgEndPath = await _imageService.SaveImageAsync(
+                    request.LeaveImg, "attendance");
+
+                if (imgEndPath is null)
+                {
+                    return BadRequest(new ResponseErrors
+                    {
+                        ErrorCodeSetter = ErrorCodeEnum.UNXEPECTED_ERROR,
+                        Message = "Şəkil yadda saxlanarkən xəta baş verdi."
+                    });
+                }
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseErrors
+                {
+                    ErrorCodeSetter = ErrorCodeEnum.INTERNAL_SERVER_ERROR,
+                    Message = $"Server xetasi: {ex.Message}"
+                });
+            }
+        }
+
+        TimeOnly setTime = TimeHelper.GetBakuTimeOnly();
+
+        // Checking if employee is early leave according to work schedule
+        WorkSchedule? employeeWorkSchedule = await _workScheduleRepository.GetByUserAsync(userInfo.Id);
+        TimeSpan allowedLeaveTime = new(0, 5, 0); // Default 5 minutes
+        bool isEarlyLeaveStatus = false;
+        if (employeeWorkSchedule is not null)
+        {
+            if (employeeWorkSchedule.EndTime - setTime > allowedLeaveTime)
+            {
+                isEarlyLeaveStatus = true;
+            }
+        }
+        existRecord.LeaveTime = setTime;
+        existRecord.LeaveImgUrl = imgEndPath;
+        existRecord.LeaveLongitude = request.LeaveLongitude;
+        existRecord.LeaveLatitude = request.LeaveLatitude;
+        existRecord.EarlyLeaveReason = request.EarlyLeaveReason;
+        existRecord.IsEarlyLeave = isEarlyLeaveStatus;
+        existRecord.UpdatedAt = TimeHelper.GetBakuTime();
+
+        await _repository.UpdateAsync(existRecord);
+        return Ok(existRecord);
+    }
+
 
 }
