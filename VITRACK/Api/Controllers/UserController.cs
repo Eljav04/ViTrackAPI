@@ -40,21 +40,14 @@ public class UserController : ControllerBase
             Message = ErrorCodes.INTERNAL_SERVER_ERROR
         });
 
-        User? user = await _userManager.FindByIdAsync(info.Id);
+        UserFullDataDTO? userInfo = await _userRepository.GetUserWithDetailsByIdAsync(info.Id);
 
-        if (user is null || user.IsDeleted)
+        if (userInfo is null)
         {
             return BadRequest();
         }
 
-        UserMeDTO userMeDTO = new()
-        {
-            Firstname = user.Firstname,
-            Lastname = user.Surname,
-            Role = info.Role
-        };
-
-        return Ok(userMeDTO);
+        return Ok(userInfo);
 
     }
 
