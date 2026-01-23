@@ -7,6 +7,7 @@ using VITRACK.Api.DTOs.Auth;
 using VITRACK.Api.Errors;
 using VITRACK.Application.Interfaces;
 using VITRACK.Common.Helpers;
+using VITRACK.Common.RequestFeatures;
 using VITRACK.Common.Services;
 using VITRACK.Infrastructure.Entities;
 
@@ -29,6 +30,75 @@ public class AttendanceRecordController : ControllerBase
         _repository = repository;
         _imageService = imageService;
         _workScheduleRepository = workScheduleRepository;
+    }
+
+    [HttpGet("get-by-id/{id}")]
+    [Authorize]
+    public async Task<IActionResult> GetById([FromRoute] int id)
+    {
+        var record = await _repository.GetByIdAsync(id);
+        if (record is null)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_NOT_FOUND,
+                Message = ErrorCodes.ATTENDANCE_RECORD_NOT_FOUND
+            });
+        }
+        return Ok(record);
+    }
+
+    [HttpGet("all")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> GetAll([FromQuery] AttendanceParametrs attendanceParametrs)
+    {
+        var records = await _repository.GetAllAsync(attendanceParametrs);
+        return Ok(new
+        {
+            items = records,
+            metaData = records.MetaData
+        });
+    }
+
+    [HttpGet("get-my-records")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetMyRecords([FromQuery] AttendanceParametrs attendanceParametrs)
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+
+        var records = await _repository.GetByEmployeeIdAsync(userInfo.Id, attendanceParametrs);
+        return Ok(new
+        {
+            items = records,
+            metaData = records.MetaData
+        });
+    }
+
+    [HttpGet("get-current-status")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> GetCurrentStatus()
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+
+        var existRecord = await _repository.GetByDateAsync(userInfo.Id, TimeHelper.GetBakuDate());
+        CurrentAttendance currentAttendance = new();
+
+        if (existRecord is not null)
+        {
+            currentAttendance.Date = existRecord.Date;
+            currentAttendance.ArrivalTime = existRecord.ArrivalTime;
+            currentAttendance.LeaveTime = existRecord.LeaveTime;
+            currentAttendance.IsLate = existRecord.IsLate;
+            currentAttendance.IsEarlyLeave = existRecord.IsEarlyLeave;
+        }
+
+        return Ok(currentAttendance);
     }
 
     [HttpPost("check-in")]
