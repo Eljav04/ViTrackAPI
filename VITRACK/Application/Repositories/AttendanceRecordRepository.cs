@@ -39,19 +39,37 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .OrderByDescending(ar => ar.CreatedAt)
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
+            .Include(ar => ar.Employee)
+                .ThenInclude(e => e.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
-                EmployeeId = at.EmployeeId,
+                Employee = at.Employee != null ? new EmployeeBasicInfo
+                {
+                    Id = at.Employee.Id,
+                    Firstname = at.Employee.Firstname,
+                    Lastname = at.Employee.Surname,
+                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null
+                } : null,
                 Date = at.Date,
                 ArrivalTime = at.ArrivalTime,
                 LeaveTime = at.LeaveTime,
                 QrApprovedArrival = at.QrApprovedArrival,
                 QrApprovedLeave = at.QrApprovedLeave,
                 LocationApprovedArrival = at.ArrivalLongitude != null,
+                ArrivalLocation = at.ArrivalLongitude != null && at.ArrivalLatitude != null ? new LocationBasicInfo
+                {
+                    Longitude = at.ArrivalLongitude,
+                    Latitude = at.ArrivalLatitude
+                } : null,
                 LocationApprovedLeave = at.LeaveLongitude != null,
-                HasArrivalImage = at.ArrivalImgUrl != null,
-                HasLeaveImage = at.LeaveImgUrl != null,
+                LeaveLocation = at.LeaveLongitude != null && at.LeaveLatitude != null ? new LocationBasicInfo
+                {
+                    Longitude = at.LeaveLongitude,
+                    Latitude = at.LeaveLatitude
+                } : null,
+                ArrivalImage = at.ArrivalImgUrl,
+                LeaveImage = at.LeaveImgUrl,
                 IsLate = at.IsLate,
                 IsEarlyLeave = at.IsEarlyLeave,
                 CreatedAt = at.CreatedAt,
@@ -76,19 +94,37 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .OrderByDescending(ar => ar.CreatedAt)
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
+            .Include(ar => ar.Employee)
+                .ThenInclude(e => e.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
-                EmployeeId = at.EmployeeId,
+                Employee = at.Employee != null ? new EmployeeBasicInfo
+                {
+                    Id = at.Employee.Id,
+                    Firstname = at.Employee.Firstname,
+                    Lastname = at.Employee.Surname,
+                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null
+                } : null,
                 Date = at.Date,
                 ArrivalTime = at.ArrivalTime,
                 LeaveTime = at.LeaveTime,
                 QrApprovedArrival = at.QrApprovedArrival,
                 QrApprovedLeave = at.QrApprovedLeave,
                 LocationApprovedArrival = at.ArrivalLongitude != null,
+                ArrivalLocation = at.ArrivalLongitude != null && at.ArrivalLatitude != null ? new LocationBasicInfo
+                {
+                    Longitude = at.ArrivalLongitude,
+                    Latitude = at.ArrivalLatitude
+                } : null,
                 LocationApprovedLeave = at.LeaveLongitude != null,
-                HasArrivalImage = at.ArrivalImgUrl != null,
-                HasLeaveImage = at.LeaveImgUrl != null,
+                LeaveLocation = at.LeaveLongitude != null && at.LeaveLatitude != null ? new LocationBasicInfo
+                {
+                    Longitude = at.LeaveLongitude,
+                    Latitude = at.LeaveLatitude
+                } : null,
+                ArrivalImage = at.ArrivalImgUrl,
+                LeaveImage = at.LeaveImgUrl,
                 IsLate = at.IsLate,
                 IsEarlyLeave = at.IsEarlyLeave,
                 CreatedAt = at.CreatedAt,

@@ -127,7 +127,9 @@ public class UserRepository : IUserRepository
                 WorkSchedule = x.workSchedule != null ? new WorkScheduleSimpleDTO
                 {
                     Id = x.workSchedule.Id,
-                    Name = x.workSchedule.Name
+                    Name = x.workSchedule.Name,
+                    StartTime = x.workSchedule.StartTime,
+                    EndTime = x.workSchedule.EndTime
                 } : null
             })
             .FirstOrDefaultAsync();
