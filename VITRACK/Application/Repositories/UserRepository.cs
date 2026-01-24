@@ -76,6 +76,67 @@ public class UserRepository : IUserRepository
         return result;
     }
 
+    public async Task<UserFullDataDTO?> GetUserWithDetailsByIdAsync(string id)
+    {
+        var result = await _context.Users
+            .Where(u => u.Id == id)
+            .Join(
+                _context.UserRoles,
+                user => user.Id,
+                userRole => userRole.UserId,
+                (user, userRole) => new { user, userRole }
+            )
+            .Join(
+                _context.Roles,
+                ur => ur.userRole.RoleId,
+                role => role.Id,
+                (ur, role) => new { ur.user, ur.userRole, role }
+            )
+            .GroupJoin(
+                _context.Departments,
+                ur => ur.user.DepartmentId,
+                d => (int?)d.Id,
+                (ur, departments) => new { ur.user, ur.role, departments }
+            )
+            .SelectMany(
+                x => x.departments.DefaultIfEmpty(),
+                (x, department) => new { x.user, x.role, department }
+            )
+            .GroupJoin(
+                _context.WorkSchedules,
+                ur => ur.user.WorkScheduleId,
+                w => (int?)w.Id,
+                (ur, workSchedules) => new { ur.user, ur.role, ur.department, workSchedules }
+            )
+            .SelectMany(
+                x => x.workSchedules.DefaultIfEmpty(),
+                (x, workSchedule) => new { x.user, x.role, x.department, workSchedule }
+            )
+            .Select(x => new UserFullDataDTO
+            {
+                Id = x.user.Id,
+                Firstname = x.user.Firstname,
+                Lastname = x.user.Surname,
+                Role = x.role.Name,
+                Login = x.user.UserName,
+                Department = x.department != null ? new DepartmentSimpleDTO
+                {
+                    Id = x.department.Id,
+                    Name = x.department.Name
+                } : null,
+                WorkSchedule = x.workSchedule != null ? new WorkScheduleSimpleDTO
+                {
+                    Id = x.workSchedule.Id,
+                    Name = x.workSchedule.Name,
+                    StartTime = x.workSchedule.StartTime,
+                    EndTime = x.workSchedule.EndTime
+                } : null
+            })
+            .FirstOrDefaultAsync();
+
+        return result;
+    }
+
     public async Task UpdateAsync(UserEditDTO userDto)
     {
         var user = await _context.Users.FindAsync(userDto.Id);

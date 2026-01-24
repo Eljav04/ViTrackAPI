@@ -8,5 +8,7 @@ public interface IUserRepository
 {
     Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false);
 
+    Task<UserFullDataDTO?> GetUserWithDetailsByIdAsync(string id);
+
     Task UpdateAsync(UserEditDTO userDto);
 }
