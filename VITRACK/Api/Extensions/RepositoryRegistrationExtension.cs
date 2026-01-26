@@ -14,6 +14,7 @@ public static class RepositoryRegistrationExtension
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IAttendanceRecordRepository, AttendanceRecordRepository>();
         services.AddScoped<IImageService, ImageService>();
+        services.AddScoped<IStatisticsRepository, StatisticsRepository>();
         return services;
     }
 }
