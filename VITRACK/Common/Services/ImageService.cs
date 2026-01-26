@@ -28,7 +28,7 @@ namespace VITRACK.Common.Services
             string uniqueFileName =
                 Guid.NewGuid().ToString("N").Substring(0, 15)
                 + "_"
-                + TimeHelper.GetBakuTime()
+                + TimeHelper.GetBakuTime().ToString("dd-MM-yyyy-HH_mm")
                 + Path.GetExtension(image.FileName);
 
             string filePath = Path.Combine(uploadsFolder, uniqueFileName);
