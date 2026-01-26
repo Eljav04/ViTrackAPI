@@ -15,6 +15,8 @@ public class AttendanceBasicInfo
     public LocationBasicInfo? LeaveLocation { get; set; }
     public string? ArrivalImage { get; set; }
     public string? LeaveImage { get; set; }
+    public string? LateReason { get; set; }
+    public string? EarlyLeaveReason { get; set; }
     public bool IsLate { get; set; } = false;
     public bool IsEarlyLeave { get; set; } = false;
     public DateTime? CreatedAt { get; set; }

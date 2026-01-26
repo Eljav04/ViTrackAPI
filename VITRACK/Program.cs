@@ -50,6 +50,9 @@ if (app.Environment.IsDevelopment())
     });
     await app.ApplyMigrationsAndSeedRolesAsync();
 }
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.UseCors("AllowSpecificOrigins");
 
 // Enable serving static files (for image uploads)
@@ -67,11 +70,5 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
-
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-
 app.Run();
 
