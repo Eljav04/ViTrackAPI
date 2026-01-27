@@ -180,7 +180,9 @@ public class AttendanceRecordController : ControllerBase
         bool isLateStatus = false;
         if (employeeWorkSchedule is not null)
         {
-            if (setTime - employeeWorkSchedule.StartTime > allowedLateTime)
+            TimeOnly allowedArrivalTime = employeeWorkSchedule.StartTime.Add(allowedLateTime);
+
+            if (setTime > allowedArrivalTime)
             {
                 isLateStatus = true;
             }
@@ -277,11 +279,13 @@ public class AttendanceRecordController : ControllerBase
 
         // Checking if employee is early leave according to work schedule
         WorkSchedule? employeeWorkSchedule = await _workScheduleRepository.GetByUserAsync(userInfo.Id);
-        TimeSpan allowedLeaveTime = new(0, 5, 0); // Default 5 minutes
+        TimeSpan earlyLeaveTime = new(0, 5, 0); // Default 5 minutes
         bool isEarlyLeaveStatus = false;
         if (employeeWorkSchedule is not null)
         {
-            if (employeeWorkSchedule.EndTime - setTime > allowedLeaveTime)
+            TimeOnly allowedLeaveTime = employeeWorkSchedule.EndTime;
+            setTime = setTime.Add(earlyLeaveTime);
+            if (setTime < allowedLeaveTime)
             {
                 isEarlyLeaveStatus = true;
             }
