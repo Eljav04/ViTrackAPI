@@ -188,14 +188,17 @@ public class AttendanceRecordController : ControllerBase
             }
         }
 
+        string? formattedArrivalLongitude = request.ArrivalLongitude != null ? request.ArrivalLongitude?.Replace(".", ",") : null;
+        string? formattedArrivalLatitude = request.ArrivalLatitude != null ? request.ArrivalLatitude?.Replace(".", ",") : null;
+
         AttendanceRecord newRecord = new()
         {
             EmployeeId = userInfo.Id,
             Date = TimeHelper.GetBakuDate(),
             ArrivalTime = setTime,
             ArrivalImgUrl = imgEndPath,
-            ArrivalLongitude = request.ArrivalLongitude,
-            ArrivalLatitude = request.ArrivalLatitude,
+            ArrivalLongitude = Convert.ToDouble(formattedArrivalLongitude),
+            ArrivalLatitude = Convert.ToDouble(formattedArrivalLatitude),
             LateReason = request.LateReason,
             IsLate = isLateStatus,
             CreatedAt = TimeHelper.GetBakuTime()
@@ -290,10 +293,13 @@ public class AttendanceRecordController : ControllerBase
                 isEarlyLeaveStatus = true;
             }
         }
+        string? formattedLeaveLongitude = request.LeaveLongitude != null ? request.LeaveLongitude?.Replace(".", ",") : null;
+        string? formattedLeaveLatitude = request.LeaveLatitude != null ? request.LeaveLatitude?.Replace(".", ",") : null;
+
         existRecord.LeaveTime = setTime;
         existRecord.LeaveImgUrl = imgEndPath;
-        existRecord.LeaveLongitude = request.LeaveLongitude;
-        existRecord.LeaveLatitude = request.LeaveLatitude;
+        existRecord.LeaveLongitude = Convert.ToDouble(formattedLeaveLongitude);
+        existRecord.LeaveLatitude = Convert.ToDouble(formattedLeaveLatitude);
         existRecord.EarlyLeaveReason = request.EarlyLeaveReason;
         existRecord.IsEarlyLeave = isEarlyLeaveStatus;
         existRecord.UpdatedAt = TimeHelper.GetBakuTime();
