@@ -9,8 +9,8 @@ namespace VITRACK.Api.DTOs.AttendanceRecords
 
         public TimeOnly? ArrivalTime { get; set; }
 
-        public double? ArrivalLongitude { get; set; }
-        public double? ArrivalLatitude { get; set; }
+        public string? ArrivalLongitude { get; set; }
+        public string? ArrivalLatitude { get; set; }
 
         public IFormFile? ArrivalImg { get; set; }
 
