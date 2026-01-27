@@ -50,10 +50,11 @@ if (app.Environment.IsDevelopment())
     });
     await app.ApplyMigrationsAndSeedRolesAsync();
 }
+app.UseCors("AllowSpecificOrigins");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseCors("AllowSpecificOrigins");
 
 // Enable serving static files (for image uploads)
 app.UseStaticFiles();
