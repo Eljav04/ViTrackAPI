@@ -1,28 +1,62 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using VITRACK.Infrastructure.Data;
 using VITRACK.Infrastructure.Entities;
 
 public static class ApplicationStartupExtensions
 {
-    public static async Task ApplyMigrationsAndSeedRolesAsync(this WebApplication app)
+    /// <summary>
+    /// Checks for and applies any pending database migrations.
+    /// </summary>
+    public static async Task ApplyMigrationsAsync(this WebApplication app)
     {
         using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
 
-        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-        // await dbContext.Database.MigrateAsync();
-
-        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
-
-        if (!await roleManager.RoleExistsAsync(Roles.Admin))
+        try
         {
-            await roleManager.CreateAsync(new IdentityRole(Roles.Admin));
+            var dbContext = services.GetRequiredService<AppDbContext>();
+            var pendingMigrations = await dbContext.Database.GetPendingMigrationsAsync();
+
+            if (pendingMigrations.Any())
+            {
+                await dbContext.Database.MigrateAsync();
+            }
         }
-
-        if (!await roleManager.RoleExistsAsync(Roles.User))
+        catch (Exception ex)
         {
-            await roleManager.CreateAsync(new IdentityRole(Roles.User));
+            var logger = services.GetRequiredService<ILogger<AppDbContext>>();
+            logger.LogError(ex, "An error occurred while applying database migrations.");
+            throw;
+        }
+    }
+
+    /// <summary>
+    /// Seeds the default Identity roles if they do not exist.
+    /// </summary>
+    public static async Task AppendSeedRolesAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var services = scope.ServiceProvider;
+
+        try
+        {
+            var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+            string[] roles = { Roles.Admin, Roles.User };
+
+            foreach (var roleName in roles)
+            {
+                if (!await roleManager.RoleExistsAsync(roleName))
+                {
+                    await roleManager.CreateAsync(new IdentityRole(roleName));
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            var logger = services.GetRequiredService<ILogger<AppDbContext>>();
+            logger.LogError(ex, "An error occurred while seeding identity roles.");
+            throw;
         }
     }
 }

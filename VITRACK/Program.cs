@@ -39,6 +39,8 @@ builder.Services.AddAllowedSpecificOrigins();
 
 
 var app = builder.Build();
+await app.ApplyMigrationsAsync();
+await app.AppendSeedRolesAsync();
 
 // pipeline
 if (app.Environment.IsDevelopment())
@@ -48,7 +50,6 @@ if (app.Environment.IsDevelopment())
     {
         options.SwaggerEndpoint("/swagger/v1/swagger.json", "ViTrackAPI v1");
     });
-    await app.ApplyMigrationsAndSeedRolesAsync();
 }
 app.UseCors("AllowSpecificOrigins");
 
