@@ -12,7 +12,9 @@ public static class CorsPolicyExtension
         {
             policy.WithOrigins(
                 "http://localhost:5173",
-                "https://localhost:5173"
+                "https://localhost:5173",
+                "http://192.168.10.116:5173",
+                "https://192.168.10.116:5173"
                 )
                   .AllowAnyMethod()
                   .AllowAnyHeader()
