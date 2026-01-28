@@ -1,5 +1,5 @@
+using System.Globalization;
 using System.Security.Claims;
-using Azure;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using VITRACK.Api.DTOs.AttendanceRecords;
@@ -188,8 +188,23 @@ public class AttendanceRecordController : ControllerBase
             }
         }
 
-        string? formattedArrivalLongitude = request.ArrivalLongitude != null ? request.ArrivalLongitude?.Replace(".", ",") : null;
-        string? formattedArrivalLatitude = request.ArrivalLatitude != null ? request.ArrivalLatitude?.Replace(".", ",") : null;
+        string? rawLat = request.ArrivalLatitude?.Replace(',', '.');
+        string? rawLng = request.ArrivalLongitude?.Replace(',', '.');
+
+        double finalLat = 0;
+        double finalLng = 0;
+        bool latParsResult = false;
+        bool lngParsResult = false;
+
+        if (!string.IsNullOrEmpty(rawLat))
+        {
+            latParsResult = double.TryParse(rawLat, CultureInfo.InvariantCulture, out finalLat);
+        }
+
+        if (!string.IsNullOrEmpty(rawLng))
+        {
+            lngParsResult = double.TryParse(rawLng, CultureInfo.InvariantCulture, out finalLng);
+        }
 
         AttendanceRecord newRecord = new()
         {
@@ -197,8 +212,8 @@ public class AttendanceRecordController : ControllerBase
             Date = TimeHelper.GetBakuDate(),
             ArrivalTime = setTime,
             ArrivalImgUrl = imgEndPath,
-            ArrivalLongitude = Convert.ToDouble(formattedArrivalLongitude),
-            ArrivalLatitude = Convert.ToDouble(formattedArrivalLatitude),
+            ArrivalLongitude = latParsResult ? finalLat : null,
+            ArrivalLatitude = lngParsResult ? finalLng : null,
             LateReason = request.LateReason,
             IsLate = isLateStatus,
             CreatedAt = TimeHelper.GetBakuTime()
@@ -293,13 +308,29 @@ public class AttendanceRecordController : ControllerBase
                 isEarlyLeaveStatus = true;
             }
         }
-        string? formattedLeaveLongitude = request.LeaveLongitude != null ? request.LeaveLongitude?.Replace(".", ",") : null;
-        string? formattedLeaveLatitude = request.LeaveLatitude != null ? request.LeaveLatitude?.Replace(".", ",") : null;
+
+        string? rawLat = request.LeaveLatitude?.Replace(',', '.');
+        string? rawLng = request.LeaveLongitude?.Replace(',', '.');
+
+        double finalLat = 0;
+        double finalLng = 0;
+        bool latParsResult = false;
+        bool lngParsResult = false;
+
+        if (!string.IsNullOrEmpty(rawLat))
+        {
+            latParsResult = double.TryParse(rawLat, CultureInfo.InvariantCulture, out finalLat);
+        }
+
+        if (!string.IsNullOrEmpty(rawLng))
+        {
+            lngParsResult = double.TryParse(rawLng, CultureInfo.InvariantCulture, out finalLng);
+        }
 
         existRecord.LeaveTime = setTime;
         existRecord.LeaveImgUrl = imgEndPath;
-        existRecord.LeaveLongitude = Convert.ToDouble(formattedLeaveLongitude);
-        existRecord.LeaveLatitude = Convert.ToDouble(formattedLeaveLatitude);
+        existRecord.LeaveLongitude = lngParsResult ? finalLng : null;
+        existRecord.LeaveLatitude = latParsResult ? finalLat : null;
         existRecord.EarlyLeaveReason = request.EarlyLeaveReason;
         existRecord.IsEarlyLeave = isEarlyLeaveStatus;
         existRecord.UpdatedAt = TimeHelper.GetBakuTime();
