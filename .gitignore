@@ -32,6 +32,7 @@ bld/
 [Oo]bj/
 [Ll]og/
 [Ll]ogs/
+bin\\Debug/
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
@@ -405,3 +406,5 @@ FodyWeavers.xsd
 
 # Configuration settings file (Generally should NOT be ignored)
 appsettings.json
+
+appsettings.Development.json

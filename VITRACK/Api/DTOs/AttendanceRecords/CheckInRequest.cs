@@ -1,5 +1,4 @@
 
-
 using System.ComponentModel.DataAnnotations;
 
 namespace VITRACK.Api.DTOs.AttendanceRecords
