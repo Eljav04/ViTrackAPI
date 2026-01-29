@@ -11,7 +11,7 @@ public sealed class AppDbContext : IdentityDbContext<User>
     public DbSet<Department> Departments => Set<Department>();
     public DbSet<WorkSchedule> WorkSchedules => Set<WorkSchedule>();
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
-
+    public DbSet<Test> Tests => Set<Test>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
