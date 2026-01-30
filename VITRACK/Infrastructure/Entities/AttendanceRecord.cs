@@ -36,6 +36,8 @@ public sealed class AttendanceRecord
     public bool QrApprovedLeave { get; set; } = false;
     public bool IsLate { get; set; } = false;
     public bool IsEarlyLeave { get; set; } = false;
+    public bool IsAbsent { get; set; } = false;
+    public bool IsRest { get; set; } = false;
 
     [Required]
     public DateTime CreatedAt { get; set; } = TimeHelper.GetBakuTime();
