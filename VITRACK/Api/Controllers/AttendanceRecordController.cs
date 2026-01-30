@@ -96,6 +96,7 @@ public class AttendanceRecordController : ControllerBase
             currentAttendance.LeaveTime = existRecord.LeaveTime;
             currentAttendance.IsLate = existRecord.IsLate;
             currentAttendance.IsEarlyLeave = existRecord.IsEarlyLeave;
+            currentAttendance.IsRest = existRecord.IsRest;
         }
 
         return Ok(currentAttendance);
@@ -337,6 +338,35 @@ public class AttendanceRecordController : ControllerBase
 
         await _repository.UpdateAsync(existRecord);
         return Ok(existRecord);
+    }
+
+    [HttpPost("set-day-off")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> SetDayOff([FromForm] DayOffRequest request)
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+        var existRecord = await _repository.GetByDateAsync(userInfo.Id, TimeHelper.GetBakuDate());
+
+        if (existRecord is not null)
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_ALREADY_EXISTS,
+                Message = ErrorCodes.ATTENDANCE_RECORD_ALREADY_EXISTS
+            });
+
+        AttendanceRecord newRecord = new()
+        {
+            EmployeeId = userInfo.Id,
+            Date = TimeHelper.GetBakuDate(),
+            LateReason = request.Reason,
+            CreatedAt = TimeHelper.GetBakuTime()
+        };
+
+        var createdRecord = await _repository.CreateAsync(newRecord);
+        return Ok(createdRecord);
     }
 
 

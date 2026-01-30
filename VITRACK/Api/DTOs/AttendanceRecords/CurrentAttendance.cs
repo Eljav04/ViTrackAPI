@@ -13,5 +13,6 @@ public class CurrentAttendance
 
     public bool IsLate { get; set; } = false;
     public bool IsEarlyLeave { get; set; } = false;
+    public bool IsRest { get; set; } = false;
 
 }
