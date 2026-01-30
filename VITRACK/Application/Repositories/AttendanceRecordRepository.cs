@@ -74,6 +74,8 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                 EarlyLeaveReason = at.EarlyLeaveReason,
                 IsLate = at.IsLate,
                 IsEarlyLeave = at.IsEarlyLeave,
+                IsAbsent = at.IsAbsent,
+                IsRest = at.IsRest,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })
@@ -131,6 +133,8 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                 EarlyLeaveReason = at.EarlyLeaveReason,
                 IsLate = at.IsLate,
                 IsEarlyLeave = at.IsEarlyLeave,
+                IsAbsent = at.IsAbsent,
+                IsRest = at.IsRest,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })
