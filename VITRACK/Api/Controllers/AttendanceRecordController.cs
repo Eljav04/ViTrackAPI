@@ -212,8 +212,8 @@ public class AttendanceRecordController : ControllerBase
             Date = TimeHelper.GetBakuDate(),
             ArrivalTime = setTime,
             ArrivalImgUrl = imgEndPath,
-            ArrivalLongitude = latParsResult ? finalLat : null,
-            ArrivalLatitude = lngParsResult ? finalLng : null,
+            ArrivalLongitude = latParsResult ? finalLng : null,
+            ArrivalLatitude = lngParsResult ? finalLat : null,
             LateReason = request.LateReason,
             IsLate = isLateStatus,
             CreatedAt = TimeHelper.GetBakuTime()
