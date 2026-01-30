@@ -148,6 +148,7 @@ public class UserRepository : IUserRepository
         user.UserName = userDto.Login;
         user.DepartmentId = userDto.DepartmentId;
         user.WorkScheduleId = userDto.WorkScheduleId;
+        user.NormalizedUserName = userDto.Login.ToUpper();
 
         _context.Users.Update(user);
         await _context.SaveChangesAsync();

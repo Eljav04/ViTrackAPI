@@ -362,7 +362,8 @@ public class AttendanceRecordController : ControllerBase
             EmployeeId = userInfo.Id,
             Date = TimeHelper.GetBakuDate(),
             LateReason = request.Reason,
-            CreatedAt = TimeHelper.GetBakuTime()
+            CreatedAt = TimeHelper.GetBakuTime(),
+            IsRest = true
         };
 
         var createdRecord = await _repository.CreateAsync(newRecord);
