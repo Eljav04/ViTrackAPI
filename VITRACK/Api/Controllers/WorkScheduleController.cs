@@ -9,7 +9,7 @@ namespace VITRACK.Api.Controllers;
 
 [Route("api/workschedule")]
 [ApiController]
-[Authorize]
+[Authorize(Roles = "Admin")]
 public class WorkScheduleController : ControllerBase
 {
     private readonly IWorkScheduleRepository _repository;
@@ -23,7 +23,7 @@ public class WorkScheduleController : ControllerBase
     public async Task<IActionResult> GetAll()
     {
         var items = await _repository.GetAllAsync();
-        var result = items.Select(w => new WorkScheduleReadDTO { Id = w.Id, Name = w.Name, StartTime = w.StartTime, EndTime = w.EndTime });
+        var result = items.Select(w => new WorkScheduleReadDTO { Id = w.Id, Name = w.Name, StartTime = w.StartTime, EndTime = w.EndTime, DurationMinutes = w.DurationMinutes });
         return Ok(result);
     }
 
@@ -45,7 +45,7 @@ public class WorkScheduleController : ControllerBase
 
         var ws = new WorkSchedule { Name = dto.Name, StartTime = dto.StartTime, EndTime = dto.EndTime };
         var created = await _repository.CreateAsync(ws);
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, new WorkScheduleReadDTO { Id = created.Id, Name = created.Name, StartTime = created.StartTime, EndTime = created.EndTime });
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, new WorkScheduleReadDTO { Id = created.Id, Name = created.Name, StartTime = created.StartTime, EndTime = created.EndTime, DurationMinutes = created.DurationMinutes });
     }
 
     [HttpPut("{id}")]

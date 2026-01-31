@@ -38,6 +38,10 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
 
     public async Task<WorkSchedule> CreateAsync(WorkSchedule workSchedule)
     {
+        workSchedule.DurationMinutes = (workSchedule.EndTime - workSchedule.StartTime).TotalMinutes > 0
+            ? (int?)(workSchedule.EndTime - workSchedule.StartTime).TotalMinutes
+            : null;
+
         var entry = await _db.WorkSchedules.AddAsync(workSchedule);
         await _db.SaveChangesAsync();
         return entry.Entity;
@@ -45,6 +49,9 @@ public sealed class WorkScheduleRepository : IWorkScheduleRepository
 
     public async Task UpdateAsync(WorkSchedule workSchedule)
     {
+        workSchedule.DurationMinutes = (workSchedule.EndTime - workSchedule.StartTime).TotalMinutes > 0
+           ? (int?)(workSchedule.EndTime - workSchedule.StartTime).TotalMinutes
+           : null;
         _db.WorkSchedules.Update(workSchedule);
         await _db.SaveChangesAsync();
     }
