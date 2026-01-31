@@ -303,8 +303,8 @@ public class AttendanceRecordController : ControllerBase
         if (employeeWorkSchedule is not null)
         {
             TimeOnly allowedLeaveTime = employeeWorkSchedule.EndTime;
-            setTime = setTime.Add(earlyLeaveTime);
-            if (setTime < allowedLeaveTime)
+            TimeOnly setTimeAllowed = setTime.Add(earlyLeaveTime);
+            if (setTimeAllowed < allowedLeaveTime)
             {
                 isEarlyLeaveStatus = true;
             }
