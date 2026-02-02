@@ -65,6 +65,7 @@ public class DepartmentController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var existing = await _repository.GetByIdAsync(id);

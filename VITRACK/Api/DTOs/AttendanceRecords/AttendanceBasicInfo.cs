@@ -21,6 +21,8 @@ public class AttendanceBasicInfo
     public bool IsEarlyLeave { get; set; } = false;
     public bool IsAbsent { get; set; } = false;
     public bool IsRest { get; set; } = false;
+    public int? AttendanceDurationMinutes { get; set; }
+    public int? OvertimeMinutes { get; set; }
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 
@@ -33,6 +35,8 @@ public class EmployeeBasicInfo
     public string? Firstname { get; set; }
     public string? Lastname { get; set; }
     public string? DepartmentName { get; set; }
+    public TimeOnly? WorkStartTime { get; set; }
+    public TimeOnly? WorkEndTime { get; set; }
 }
 
 public class LocationBasicInfo
