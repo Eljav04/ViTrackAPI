@@ -49,7 +49,7 @@ public class AttendanceRecordController : ControllerBase
     }
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAll([FromQuery] AttendanceParametrs attendanceParametrs)
     {
         var records = await _repository.GetAllAsync(attendanceParametrs);
@@ -96,6 +96,7 @@ public class AttendanceRecordController : ControllerBase
             currentAttendance.LeaveTime = existRecord.LeaveTime;
             currentAttendance.IsLate = existRecord.IsLate;
             currentAttendance.IsEarlyLeave = existRecord.IsEarlyLeave;
+            currentAttendance.IsRest = existRecord.IsRest;
         }
 
         return Ok(currentAttendance);
@@ -215,6 +216,9 @@ public class AttendanceRecordController : ControllerBase
             ArrivalLongitude = latParsResult ? finalLng : null,
             ArrivalLatitude = lngParsResult ? finalLat : null,
             LateReason = request.LateReason,
+            PlannedStartTime = employeeWorkSchedule?.StartTime,
+            PlannedEndTime = employeeWorkSchedule?.EndTime,
+            PlannedWorkingMinutes = employeeWorkSchedule?.DurationMinutes,
             IsLate = isLateStatus,
             CreatedAt = TimeHelper.GetBakuTime()
         };
@@ -302,8 +306,8 @@ public class AttendanceRecordController : ControllerBase
         if (employeeWorkSchedule is not null)
         {
             TimeOnly allowedLeaveTime = employeeWorkSchedule.EndTime;
-            setTime = setTime.Add(earlyLeaveTime);
-            if (setTime < allowedLeaveTime)
+            TimeOnly setTimeAllowed = setTime.Add(earlyLeaveTime);
+            if (setTimeAllowed < allowedLeaveTime)
             {
                 isEarlyLeaveStatus = true;
             }
@@ -335,8 +339,49 @@ public class AttendanceRecordController : ControllerBase
         existRecord.IsEarlyLeave = isEarlyLeaveStatus;
         existRecord.UpdatedAt = TimeHelper.GetBakuTime();
 
+        if (existRecord.ArrivalTime is not null && existRecord.LeaveTime is not null)
+        {
+            TimeSpan attendanceDuration = existRecord.LeaveTime.Value - existRecord.ArrivalTime.Value;
+            existRecord.AttendanceDurationMinutes = (int)attendanceDuration.TotalMinutes;
+
+            if (existRecord.PlannedWorkingMinutes is not null)
+            {
+                existRecord.OvertimeMinutes = existRecord.AttendanceDurationMinutes - existRecord.PlannedWorkingMinutes;
+            }
+        }
+
         await _repository.UpdateAsync(existRecord);
         return Ok(existRecord);
+    }
+
+    [HttpPost("set-day-off")]
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> SetDayOff([FromForm] DayOffRequest request)
+    {
+        UserInfo? userInfo =
+             JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+
+        if (userInfo?.Id is null) return StatusCode(500);
+        var existRecord = await _repository.GetByDateAsync(userInfo.Id, TimeHelper.GetBakuDate());
+
+        if (existRecord is not null)
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_ALREADY_EXISTS,
+                Message = ErrorCodes.ATTENDANCE_RECORD_ALREADY_EXISTS
+            });
+
+        AttendanceRecord newRecord = new()
+        {
+            EmployeeId = userInfo.Id,
+            Date = TimeHelper.GetBakuDate(),
+            LateReason = request.Reason,
+            CreatedAt = TimeHelper.GetBakuTime(),
+            IsRest = true
+        };
+
+        var createdRecord = await _repository.CreateAsync(newRecord);
+        return Ok(createdRecord);
     }
 
 

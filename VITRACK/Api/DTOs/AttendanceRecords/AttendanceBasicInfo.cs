@@ -19,6 +19,8 @@ public class AttendanceBasicInfo
     public string? EarlyLeaveReason { get; set; }
     public bool IsLate { get; set; } = false;
     public bool IsEarlyLeave { get; set; } = false;
+    public bool IsAbsent { get; set; } = false;
+    public bool IsRest { get; set; } = false;
     public DateTime? CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
 

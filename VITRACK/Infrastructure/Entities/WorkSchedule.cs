@@ -13,4 +13,5 @@ public sealed class WorkSchedule
     public TimeOnly StartTime { get; set; }
     [Required]
     public TimeOnly EndTime { get; set; }
+    public int? DurationMinutes { get; set; }
 }

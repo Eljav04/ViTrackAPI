@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using VITRACK.Infrastructure.Data;
 
@@ -11,9 +12,11 @@ using VITRACK.Infrastructure.Data;
 namespace VITRACK.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260130073902_AddToAttRecordIsAbsentIsRest")]
+    partial class AddToAttRecordIsAbsentIsRest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -176,9 +179,6 @@ namespace VITRACK.Migrations
                     b.Property<TimeOnly?>("ArrivalTime")
                         .HasColumnType("time");
 
-                    b.Property<int?>("AttendanceDurationMinutes")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -222,18 +222,6 @@ namespace VITRACK.Migrations
 
                     b.Property<TimeOnly?>("LeaveTime")
                         .HasColumnType("time");
-
-                    b.Property<int?>("OvertimeMinutes")
-                        .HasColumnType("int");
-
-                    b.Property<TimeOnly?>("PlannedEndTime")
-                        .HasColumnType("time");
-
-                    b.Property<TimeOnly?>("PlannedStartTime")
-                        .HasColumnType("time");
-
-                    b.Property<int?>("PlannedWorkingMinutes")
-                        .HasColumnType("int");
 
                     b.Property<bool>("QrApprovedArrival")
                         .HasColumnType("bit");
@@ -376,9 +364,6 @@ namespace VITRACK.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int?>("DurationMinutes")
-                        .HasColumnType("int");
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");

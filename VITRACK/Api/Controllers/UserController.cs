@@ -30,6 +30,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize]
     public async Task<IActionResult> GetMe()
     {
         ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -53,7 +54,7 @@ public class UserController : ControllerBase
 
 
     [HttpGet("all")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAllUsers([FromQuery] bool IsDeleted = false)
     {
         var users = _userManager.Users.Where(u => u.IsDeleted == IsDeleted).ToList();
@@ -76,7 +77,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("all-detailed")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAllDetailedUsers([FromQuery] bool IsDeleted = false)
     {
         var users = await _userRepository.GetAllUsersWithDetailsAsync(IsDeleted);
@@ -85,7 +86,7 @@ public class UserController : ControllerBase
 
 
     [HttpPost("registr")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> Registr([FromBody] UserRegistrDTO userRegistrDTO)
     {
         User? existingUser = await _userManager.FindByNameAsync(userRegistrDTO.Login);
@@ -177,8 +178,54 @@ public class UserController : ControllerBase
         });
     }
 
-    [HttpPut("update")]
+    [HttpPost("registr-boss")]
     [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> RegistrBoss([FromBody] UserRegistrDTO userRegistrDTO)
+    {
+        User? existingUser = await _userManager.FindByNameAsync(userRegistrDTO.Login);
+        if (existingUser != null)
+        {
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.USER_ALREADY_EXISTS,
+                Message = ErrorCodes.USER_ALREADY_EXISTS
+            });
+        }
+
+        User newUser = new()
+        {
+            UserName = userRegistrDTO.Login,
+            Firstname = userRegistrDTO.Firstname,
+            Surname = userRegistrDTO.Lastname,
+            CreationTime = TimeHelper.GetBakuTime(),
+        };
+
+        var result = await _userManager.CreateAsync(newUser, userRegistrDTO.Password);
+
+        if (result.Succeeded)
+        {
+            var roleResult = await _userManager.AddToRoleAsync(newUser, Roles.Boss);
+            if (!roleResult.Succeeded)
+            {
+                return StatusCode(500, new ResponseErrors
+                {
+                    ErrorCodeSetter = ErrorCodeEnum.INTERNAL_SERVER_ERROR,
+                    Message = ErrorCodes.INTERNAL_SERVER_ERROR
+                });
+            }
+
+            return Ok("Istifadəçi uğurla yaradıldı.");
+        }
+
+        return BadRequest(new ResponseErrors
+        {
+            ErrorCodeSetter = ErrorCodeEnum.UNXEPECTED_ERROR,
+            Message = ErrorCodes.UNXEPECTED_ERROR
+        });
+    }
+
+    [HttpPut("update")]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> Update([FromBody] UserEditDTO userDto)
     {
         await _userRepository.UpdateAsync(userDto);
