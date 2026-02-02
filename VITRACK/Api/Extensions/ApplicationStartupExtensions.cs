@@ -42,7 +42,7 @@ public static class ApplicationStartupExtensions
         try
         {
             var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
-            string[] roles = { Roles.Admin, Roles.User };
+            string[] roles = { Roles.Admin, Roles.User, Roles.Boss };
 
             foreach (var roleName in roles)
             {
