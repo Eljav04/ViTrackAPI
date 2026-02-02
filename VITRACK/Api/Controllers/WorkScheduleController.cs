@@ -9,7 +9,7 @@ namespace VITRACK.Api.Controllers;
 
 [Route("api/workschedule")]
 [ApiController]
-[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin,Boss")]
 public class WorkScheduleController : ControllerBase
 {
     private readonly IWorkScheduleRepository _repository;

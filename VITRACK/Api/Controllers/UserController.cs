@@ -30,6 +30,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("me")]
+    [Authorize]
     public async Task<IActionResult> GetMe()
     {
         ClaimsIdentity? identity = HttpContext.User.Identity as ClaimsIdentity;
@@ -53,7 +54,7 @@ public class UserController : ControllerBase
 
 
     [HttpGet("all")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAllUsers([FromQuery] bool IsDeleted = false)
     {
         var users = _userManager.Users.Where(u => u.IsDeleted == IsDeleted).ToList();
@@ -76,7 +77,7 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("all-detailed")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAllDetailedUsers([FromQuery] bool IsDeleted = false)
     {
         var users = await _userRepository.GetAllUsersWithDetailsAsync(IsDeleted);
@@ -85,7 +86,7 @@ public class UserController : ControllerBase
 
 
     [HttpPost("registr")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> Registr([FromBody] UserRegistrDTO userRegistrDTO)
     {
         User? existingUser = await _userManager.FindByNameAsync(userRegistrDTO.Login);
@@ -224,7 +225,7 @@ public class UserController : ControllerBase
     }
 
     [HttpPut("update")]
-    [Authorize(Roles = Roles.Admin)]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> Update([FromBody] UserEditDTO userDto)
     {
         await _userRepository.UpdateAsync(userDto);

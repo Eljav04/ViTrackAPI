@@ -49,7 +49,7 @@ public class AttendanceRecordController : ControllerBase
     }
 
     [HttpGet("all")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetAll([FromQuery] AttendanceParametrs attendanceParametrs)
     {
         var records = await _repository.GetAllAsync(attendanceParametrs);
