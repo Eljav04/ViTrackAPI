@@ -38,6 +38,11 @@ public sealed class AttendanceRecord
     public bool IsEarlyLeave { get; set; } = false;
     public bool IsAbsent { get; set; } = false;
     public bool IsRest { get; set; } = false;
+    public int? AttendanceDurationMinutes { get; set; }
+    public int? OvertimeMinutes { get; set; }
+    public TimeOnly? PlannedStartTime { get; set; }
+    public TimeOnly? PlannedEndTime { get; set; }
+    public int? PlannedWorkingMinutes { get; set; }
 
     [Required]
     public DateTime CreatedAt { get; set; } = TimeHelper.GetBakuTime();

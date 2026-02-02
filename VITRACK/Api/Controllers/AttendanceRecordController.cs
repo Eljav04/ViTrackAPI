@@ -216,6 +216,9 @@ public class AttendanceRecordController : ControllerBase
             ArrivalLongitude = latParsResult ? finalLng : null,
             ArrivalLatitude = lngParsResult ? finalLat : null,
             LateReason = request.LateReason,
+            PlannedStartTime = employeeWorkSchedule?.StartTime,
+            PlannedEndTime = employeeWorkSchedule?.EndTime,
+            PlannedWorkingMinutes = employeeWorkSchedule?.DurationMinutes,
             IsLate = isLateStatus,
             CreatedAt = TimeHelper.GetBakuTime()
         };
@@ -335,6 +338,17 @@ public class AttendanceRecordController : ControllerBase
         existRecord.EarlyLeaveReason = request.EarlyLeaveReason;
         existRecord.IsEarlyLeave = isEarlyLeaveStatus;
         existRecord.UpdatedAt = TimeHelper.GetBakuTime();
+
+        if (existRecord.ArrivalTime is not null && existRecord.LeaveTime is not null)
+        {
+            TimeSpan attendanceDuration = existRecord.LeaveTime.Value - existRecord.ArrivalTime.Value;
+            existRecord.AttendanceDurationMinutes = (int)attendanceDuration.TotalMinutes;
+
+            if (existRecord.PlannedWorkingMinutes is not null)
+            {
+                existRecord.OvertimeMinutes = existRecord.AttendanceDurationMinutes - existRecord.PlannedWorkingMinutes;
+            }
+        }
 
         await _repository.UpdateAsync(existRecord);
         return Ok(existRecord);
