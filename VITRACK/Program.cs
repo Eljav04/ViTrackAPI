@@ -1,6 +1,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Serilog;
 using VITRACK.Api.Extensions;
 using VITRACK.Infrastructure.Data;
 
@@ -37,8 +38,16 @@ builder.Services.AddJwtAuthentication(secretKey);
 builder.Services.AddAllowedSpecificOrigins();
 // ===== Extensions =====
 
+// ===== Log configuration =====
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
+// ===== Log configuration =====
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
+// Reccomend to disbale after finishing development
 await app.ApplyMigrationsAsync();
 await app.AppendSeedRolesAsync();
 

@@ -34,7 +34,7 @@ namespace VITRACK.Common.Services
                         new Claim(ClaimTypes.Role, role ?? ""),
                     }),
 
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(30),
 
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),

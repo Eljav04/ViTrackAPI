@@ -64,7 +64,7 @@ public class AuthController : ControllerBase
             Response.Cookies.Append("auth_token", jwt, new CookieOptions
             {
                 HttpOnly = true,
-                Expires = DateTime.UtcNow.AddDays(7),
+                Expires = DateTime.UtcNow.AddDays(30),
                 SameSite = SameSiteMode.None,
                 Secure = true,
             });
