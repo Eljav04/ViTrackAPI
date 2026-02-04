@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
 using VITRACK.Api.Extensions;
+using VITRACK.Common.Helpers;
 using VITRACK.Infrastructure.Data;
 
 
@@ -46,6 +47,7 @@ builder.Host.UseSerilog((context, configuration) =>
 var app = builder.Build();
 
 app.UseSerilogRequestLogging();
+Log.Information("App is started at " + TimeHelper.GetBakuTime().ToString());
 
 // Reccomend to disbale after finishing development
 await app.ApplyMigrationsAsync();
@@ -81,5 +83,9 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
+Log.Information("App is runned at " + TimeHelper.GetBakuTime().ToString());
+
 app.Run();
+
+
 
