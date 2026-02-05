@@ -17,9 +17,9 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false)
+    public async Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false, string? roleName = null)
     {
-        var result = await _context.Users
+        var query = _context.Users
             .Where(u => u.IsDeleted == isDeleted)
             .Join(
                 _context.UserRoles,
@@ -31,8 +31,15 @@ public class UserRepository : IUserRepository
                 _context.Roles,
                 ur => ur.userRole.RoleId,
                 role => role.Id,
-                (ur, role) => new { ur.user, ur.userRole, role }
-            )
+                (ur, role) => new { ur.user, role }
+            );
+
+        if (!string.IsNullOrEmpty(roleName))
+        {
+            query = query.Where(x => x.role.Name == roleName);
+        }
+
+        var result = await query
             .GroupJoin(
                 _context.Departments,
                 ur => ur.user.DepartmentId,
@@ -75,7 +82,6 @@ public class UserRepository : IUserRepository
 
         return result;
     }
-
     public async Task<UserFullDataDTO?> GetUserWithDetailsByIdAsync(string id)
     {
         var result = await _context.Users
