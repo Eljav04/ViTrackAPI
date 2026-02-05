@@ -399,16 +399,7 @@ public class AttendanceRecordController : ControllerBase
             });
         }
 
-        if (attUpt.LeaveTime <= attUpt.ArrivalTime)
-        {
-            return BadRequest(new ResponseErrors
-            {
-                ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
-                Message = "Çıxış vaxtı gəlmə vaxtından kiçik ola bilməz."
-            });
-        }
-
-        if (attUpt.IsAbsent == true && attUpt.IsRest == true)
+        if ((attUpt.IsAbsent ?? existRecord.IsAbsent) && (attUpt.IsRest ?? existRecord.IsRest))
         {
             return BadRequest(new ResponseErrors
             {
@@ -417,47 +408,16 @@ public class AttendanceRecordController : ControllerBase
             });
         }
 
-        if (attUpt.ArrivalTime.HasValue)
-            existRecord.ArrivalTime = attUpt.ArrivalTime;
-
-        if (attUpt.LeaveTime.HasValue)
-            existRecord.LeaveTime = attUpt.LeaveTime;
-
-        if (attUpt.IsLate.HasValue)
-            existRecord.IsLate = attUpt.IsLate.Value;
-
-        if (attUpt.IsEarlyLeave.HasValue)
-            existRecord.IsEarlyLeave = attUpt.IsEarlyLeave.Value;
-
-        if (attUpt.IsAbsent.HasValue)
-            existRecord.IsAbsent = attUpt.IsAbsent.Value;
-
-        if (attUpt.IsRest.HasValue)
-            existRecord.IsRest = attUpt.IsRest.Value;
+        if (attUpt.ArrivalTime.HasValue) existRecord.ArrivalTime = attUpt.ArrivalTime;
+        if (attUpt.LeaveTime.HasValue) existRecord.LeaveTime = attUpt.LeaveTime;
+        if (attUpt.IsLate.HasValue) existRecord.IsLate = attUpt.IsLate.Value;
+        if (attUpt.IsEarlyLeave.HasValue) existRecord.IsEarlyLeave = attUpt.IsEarlyLeave.Value;
+        if (attUpt.IsAbsent.HasValue) existRecord.IsAbsent = attUpt.IsAbsent.Value;
+        if (attUpt.IsRest.HasValue) existRecord.IsRest = attUpt.IsRest.Value;
 
         existRecord.UpdatedAt = TimeHelper.GetBakuTime();
 
-        if (existRecord.LeaveTime <= existRecord.ArrivalTime)
-        {
-            return BadRequest(new ResponseErrors
-            {
-                ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
-                Message = "Çıxış vaxtı gəlmə vaxtından kiçik ola bilməz."
-            });
-        }
-
-        if (existRecord.ArrivalTime is not null && existRecord.LeaveTime is not null && existRecord.IsAbsent == false && existRecord.IsRest == false)
-        {
-            TimeSpan attendanceDuration = existRecord.LeaveTime.Value - existRecord.ArrivalTime.Value;
-            existRecord.AttendanceDurationMinutes = (int)attendanceDuration.TotalMinutes;
-
-            if (existRecord.PlannedWorkingMinutes is not null)
-            {
-                existRecord.OvertimeMinutes = existRecord.AttendanceDurationMinutes - existRecord.PlannedWorkingMinutes;
-            }
-        }
-
-        if (existRecord.IsAbsent == true || existRecord.IsRest == true)
+        if (existRecord.IsAbsent || existRecord.IsRest)
         {
             existRecord.AttendanceDurationMinutes = 0;
             existRecord.OvertimeMinutes = 0;
@@ -466,9 +426,31 @@ public class AttendanceRecordController : ControllerBase
             existRecord.IsLate = false;
             existRecord.IsEarlyLeave = false;
         }
+        else
+        {
+            if (existRecord.ArrivalTime.HasValue && existRecord.LeaveTime.HasValue)
+            {
+                if (existRecord.LeaveTime <= existRecord.ArrivalTime)
+                {
+                    return BadRequest(new ResponseErrors
+                    {
+                        ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
+                        Message = "Çıxış vaxtı gəlmə vaxtından kiçik ola bilməz."
+                    });
+                }
+
+                TimeSpan attendanceDuration = existRecord.LeaveTime.Value - existRecord.ArrivalTime.Value;
+                existRecord.AttendanceDurationMinutes = (int)attendanceDuration.TotalMinutes;
+
+                if (existRecord.PlannedWorkingMinutes.HasValue)
+                {
+                    existRecord.OvertimeMinutes = existRecord.AttendanceDurationMinutes - existRecord.PlannedWorkingMinutes.Value;
+                }
+            }
+        }
 
         await _repository.UpdateAsync(existRecord);
         return Ok(existRecord);
-
     }
+
 }
