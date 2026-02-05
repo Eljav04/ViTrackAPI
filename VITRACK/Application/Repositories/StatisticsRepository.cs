@@ -3,7 +3,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using VITRACK.Application.DTOs;
+using VITRACK.Api.DTOs.Statistics;
 using VITRACK.Application.Interfaces;
 using VITRACK.Infrastructure.Data;
 

@@ -2,7 +2,7 @@
 
 using System.Threading;
 using System.Threading.Tasks;
-using VITRACK.Application.DTOs;
+using VITRACK.Api.DTOs.Statistics;
 
 namespace VITRACK.Application.Interfaces;
 
