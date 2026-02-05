@@ -1,7 +1,10 @@
 
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Serilog;
 using VITRACK.Api.Extensions;
+using VITRACK.Common.Helpers;
 using VITRACK.Infrastructure.Data;
 
 
@@ -37,10 +40,19 @@ builder.Services.AddJwtAuthentication(secretKey);
 builder.Services.AddAllowedSpecificOrigins();
 // ===== Extensions =====
 
+// ===== Log configuration =====
+builder.Host.UseSerilog((context, configuration) =>
+    configuration.ReadFrom.Configuration(context.Configuration));
+// ===== Log configuration =====
 
 var app = builder.Build();
-await app.ApplyMigrationsAsync();
-await app.AppendSeedRolesAsync();
+
+app.UseSerilogRequestLogging();
+Log.Warning("App is started at " + TimeHelper.GetBakuTime().ToString());
+
+// Reccomend to disbale after finishing development
+// await app.ApplyMigrationsAsync();
+// await app.AppendSeedRolesAsync();
 
 // pipeline
 if (app.Environment.IsDevelopment())
@@ -72,5 +84,9 @@ app.UseHttpsRedirection();
 app.MapControllers();
 
 app.MapFallbackToFile("index.html");
+Log.Warning("App is runned at " + TimeHelper.GetBakuTime().ToString());
+
 app.Run();
+
+
 

@@ -384,5 +384,73 @@ public class AttendanceRecordController : ControllerBase
         return Ok(createdRecord);
     }
 
+    [HttpPut("update")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<IActionResult> Update([FromBody] AttendanceUpdate attUpt)
+    {
+        var existRecord = await _repository.GetByIdAsync(attUpt.Id);
+
+        if (existRecord is null)
+        {
+            return NotFound(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.ATTENDANCE_RECORD_NOT_FOUND,
+                Message = ErrorCodes.ATTENDANCE_RECORD_NOT_FOUND
+            });
+        }
+
+        if ((attUpt.IsAbsent ?? existRecord.IsAbsent) && (attUpt.IsRest ?? existRecord.IsRest))
+        {
+            return BadRequest(new ResponseErrors
+            {
+                ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
+                Message = "Həm işdən qeyri-iş günü, həm də işə gəlməmə eyni anda təyin edilə bilməz."
+            });
+        }
+
+        if (attUpt.ArrivalTime.HasValue) existRecord.ArrivalTime = attUpt.ArrivalTime;
+        if (attUpt.LeaveTime.HasValue) existRecord.LeaveTime = attUpt.LeaveTime;
+        if (attUpt.IsLate.HasValue) existRecord.IsLate = attUpt.IsLate.Value;
+        if (attUpt.IsEarlyLeave.HasValue) existRecord.IsEarlyLeave = attUpt.IsEarlyLeave.Value;
+        if (attUpt.IsAbsent.HasValue) existRecord.IsAbsent = attUpt.IsAbsent.Value;
+        if (attUpt.IsRest.HasValue) existRecord.IsRest = attUpt.IsRest.Value;
+
+        existRecord.UpdatedAt = TimeHelper.GetBakuTime();
+
+        if (existRecord.IsAbsent || existRecord.IsRest)
+        {
+            existRecord.AttendanceDurationMinutes = 0;
+            existRecord.OvertimeMinutes = 0;
+            existRecord.ArrivalTime = null;
+            existRecord.LeaveTime = null;
+            existRecord.IsLate = false;
+            existRecord.IsEarlyLeave = false;
+        }
+        else
+        {
+            if (existRecord.ArrivalTime.HasValue && existRecord.LeaveTime.HasValue)
+            {
+                if (existRecord.LeaveTime <= existRecord.ArrivalTime)
+                {
+                    return BadRequest(new ResponseErrors
+                    {
+                        ErrorCodeSetter = ErrorCodeEnum.INPUT_ERROR,
+                        Message = "Çıxış vaxtı gəlmə vaxtından kiçik ola bilməz."
+                    });
+                }
+
+                TimeSpan attendanceDuration = existRecord.LeaveTime.Value - existRecord.ArrivalTime.Value;
+                existRecord.AttendanceDurationMinutes = (int)attendanceDuration.TotalMinutes;
+
+                if (existRecord.PlannedWorkingMinutes.HasValue)
+                {
+                    existRecord.OvertimeMinutes = existRecord.AttendanceDurationMinutes - existRecord.PlannedWorkingMinutes.Value;
+                }
+            }
+        }
+
+        await _repository.UpdateAsync(existRecord);
+        return Ok(existRecord);
+    }
 
 }

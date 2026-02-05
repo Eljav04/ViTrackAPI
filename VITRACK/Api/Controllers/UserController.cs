@@ -84,6 +84,14 @@ public class UserController : ControllerBase
         return Ok(users);
     }
 
+    [HttpGet("all-detailed-employees")]
+    [Authorize(Roles = "Admin,Boss")]
+    public async Task<IActionResult> GetAllDetailedEmploees([FromQuery] bool IsDeleted = false)
+    {
+        var users = await _userRepository.GetAllUsersWithDetailsAsync(IsDeleted, Roles.User);
+        return Ok(users);
+    }
+
 
     [HttpPost("registr")]
     [Authorize(Roles = "Admin,Boss")]

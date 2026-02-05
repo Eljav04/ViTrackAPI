@@ -21,8 +21,10 @@ namespace VITRACK.Common.Services
 
         public bool IsValidFile(IFormFile? file)
         {
-            if ((file is null || file.Length == 0) && !AllowNullable)
+            if ((file is null || file.Length == 0))
             {
+                if (AllowNullable)
+                    return true;
                 ErrorMessage = "Fayl seçilməyib";
                 return false;
             }

@@ -6,7 +6,7 @@ namespace VITRACK.Application.Interfaces;
 
 public interface IUserRepository
 {
-    Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false);
+    Task<IEnumerable<UserFullDataDTO>> GetAllUsersWithDetailsAsync(bool? isDeleted = false, string roleName = null);
 
     Task<UserFullDataDTO?> GetUserWithDetailsByIdAsync(string id);
 

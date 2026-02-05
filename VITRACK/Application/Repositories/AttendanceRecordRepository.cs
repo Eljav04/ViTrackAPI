@@ -40,7 +40,7 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
             .Include(ar => ar.Employee)
-                .ThenInclude(e => e.Department)
+                .ThenInclude(e => e!.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
@@ -49,7 +49,9 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                     Id = at.Employee.Id,
                     Firstname = at.Employee.Firstname,
                     Lastname = at.Employee.Surname,
-                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null
+                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null,
+                    WorkStartTime = at.PlannedStartTime,
+                    WorkEndTime = at.PlannedEndTime
                 } : null,
                 Date = at.Date,
                 ArrivalTime = at.ArrivalTime,
@@ -76,6 +78,8 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                 IsEarlyLeave = at.IsEarlyLeave,
                 IsAbsent = at.IsAbsent,
                 IsRest = at.IsRest,
+                AttendanceDurationMinutes = at.AttendanceDurationMinutes,
+                OvertimeMinutes = at.OvertimeMinutes,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })
@@ -99,7 +103,7 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
             .Include(ar => ar.Employee)
-                .ThenInclude(e => e.Department)
+                .ThenInclude(e => e!.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
@@ -108,7 +112,9 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                     Id = at.Employee.Id,
                     Firstname = at.Employee.Firstname,
                     Lastname = at.Employee.Surname,
-                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null
+                    DepartmentName = at.Employee.Department != null ? at.Employee.Department.Name : null,
+                    WorkStartTime = at.PlannedStartTime,
+                    WorkEndTime = at.PlannedEndTime
                 } : null,
                 Date = at.Date,
                 ArrivalTime = at.ArrivalTime,
@@ -135,6 +141,8 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
                 IsEarlyLeave = at.IsEarlyLeave,
                 IsAbsent = at.IsAbsent,
                 IsRest = at.IsRest,
+                AttendanceDurationMinutes = at.AttendanceDurationMinutes,
+                OvertimeMinutes = at.OvertimeMinutes,
                 CreatedAt = at.CreatedAt,
                 UpdatedAt = at.UpdatedAt
             })

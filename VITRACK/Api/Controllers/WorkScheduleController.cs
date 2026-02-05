@@ -34,7 +34,7 @@ public class WorkScheduleController : ControllerBase
         if (ws is null)
             return NotFound(new ResponseErrors { ErrorCodeSetter = ErrorCodeEnum.NOT_FOUND, Message = "WorkSchedule not found." });
 
-        return Ok(new WorkScheduleReadDTO { Id = ws.Id, Name = ws.Name, StartTime = ws.StartTime, EndTime = ws.EndTime });
+        return Ok(new WorkScheduleReadDTO { Id = ws.Id, Name = ws.Name, StartTime = ws.StartTime, EndTime = ws.EndTime, DurationMinutes = ws.DurationMinutes });
     }
 
     [HttpPost]
@@ -66,6 +66,7 @@ public class WorkScheduleController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> Delete(int id)
     {
         var existing = await _repository.GetByIdAsync(id);
