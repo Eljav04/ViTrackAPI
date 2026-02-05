@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Serilog;
@@ -50,8 +51,8 @@ app.UseSerilogRequestLogging();
 Log.Warning("App is started at " + TimeHelper.GetBakuTime().ToString());
 
 // Reccomend to disbale after finishing development
-await app.ApplyMigrationsAsync();
-await app.AppendSeedRolesAsync();
+// await app.ApplyMigrationsAsync();
+// await app.AppendSeedRolesAsync();
 
 // pipeline
 if (app.Environment.IsDevelopment())

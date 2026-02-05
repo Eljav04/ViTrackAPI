@@ -40,7 +40,7 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
             .Include(ar => ar.Employee)
-                .ThenInclude(e => e.Department)
+                .ThenInclude(e => e!.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
@@ -103,7 +103,7 @@ public sealed class AttendanceRecordRepository : IAttendanceRecordRepository
             .Skip((attendanceParametrs.PageNumber - 1) * attendanceParametrs.PageSize)
             .Take(attendanceParametrs.PageSize)
             .Include(ar => ar.Employee)
-                .ThenInclude(e => e.Department)
+                .ThenInclude(e => e!.Department)
             .Select(at => new AttendanceBasicInfo
             {
                 Id = at.Id,
