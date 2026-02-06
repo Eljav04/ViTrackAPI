@@ -89,6 +89,15 @@ public class StatisticsController : ControllerBase
         return Ok(stats);
     }
 
+    [HttpGet("attendance/get-today-overall")]
+    [Authorize(Roles = "Admin,Boss")]
+    public async Task<IActionResult> GetTodayOverallStatistics(CancellationToken ct)
+    {
+        DateOnly today = TimeHelper.GetBakuDate();
+        var stats = await _repository.GetTodayOverallStatisticsAsync(today, ct);
+        return Ok(stats);
+    }
+
 
 
 }

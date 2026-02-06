@@ -141,4 +141,118 @@ public class StatisticsRepository : IStatisticsRepository
         };
     }
 
+    public async Task<TodayOvevallStatsDto> GetTodayOverallStatisticsAsync(DateOnly date, CancellationToken ct = default)
+    {
+        // 1. Get employees (users with role 'User')
+        var usersQuery = from u in _context.Users
+                         join ur in _context.UserRoles on u.Id equals ur.UserId
+                         join r in _context.Roles on ur.RoleId equals r.Id
+                         where r.Name == Infrastructure.Entities.Roles.User && !u.IsDeleted
+                         select new { u.Id, u.Firstname, u.Surname, u.Department };
+
+        var users = await usersQuery.ToListAsync(ct);
+
+        if (!users.Any())
+            return new TodayOvevallStatsDto();
+
+        var userIds = users.Select(u => u.Id).ToList();
+
+        // 2. Get today's attendance records for these users
+        var records = await _context.AttendanceRecords
+            .Where(ar => userIds.Contains(ar.EmployeeId) && ar.Date == date)
+            .ToListAsync(ct);
+
+        // 3. Process data
+        var employeesList = new List<EmployeeBasicInfo>();
+        var departmentStatsMap = new Dictionary<string, DepartmentStats>();
+
+        int totalEmployees = users.Count;
+        int presentEmployees = 0; // Has record
+        int absentEmployees = 0;  // IsAbsent = true
+        int restEmployees = 0;    // IsRest = true
+        int lateArrivalsCount = 0; // IsLate = true
+
+        foreach (var user in users)
+        {
+            var record = records.FirstOrDefault(r => r.EmployeeId == user.Id);
+            
+            // Department handling
+            string deptName = user.Department?.Name ?? "Digər";
+            int deptId = user.Department?.Id ?? 0;
+
+            if (!departmentStatsMap.ContainsKey(deptName))
+            {
+                departmentStatsMap[deptName] = new DepartmentStats 
+                { 
+                    Id = deptId, 
+                    Name = deptName,
+                    TotalEmployees = 0,
+                    PresentEmployees = 0,
+                    LateCount = 0
+                };
+            }
+            
+            var deptStats = departmentStatsMap[deptName];
+            deptStats.TotalEmployees++;
+
+            // Status checks
+            bool hasRecord = record != null;
+            bool isRest = record?.IsRest ?? false;
+            bool isLate = record?.IsLate ?? false;
+            
+            // User Change: If logic for employee not exist record for today -> IsAbsent = true
+            // OR if record exist but IsAbsent = true -> IsAbsent = true
+            bool isAbsent = !hasRecord || (record?.IsAbsent ?? false);
+
+            if (isAbsent)
+            {
+                absentEmployees++;
+            }
+            else if (isRest)
+            {
+                restEmployees++;
+            }
+            else
+            {
+                // Present (Has record, Not Absent, Not Rest)
+                presentEmployees++;
+                deptStats.PresentEmployees++;
+
+                if (isLate)
+                {
+                    lateArrivalsCount++;
+                    deptStats.LateCount++;
+                }
+            }
+
+            // Employee List Item
+            var employeeInfo = new EmployeeBasicInfo
+            {
+                Id = user.Id,
+                Firstname = user.Firstname,
+                Lastname = user.Surname,
+                DepartmentName = deptName,
+                CheckInTime = record?.ArrivalTime,
+                IsLate = isLate,
+                IsRest = isRest,
+                IsAbsent = isAbsent
+            };
+            employeesList.Add(employeeInfo);
+        }
+
+        return new TodayOvevallStatsDto
+        {
+            TotalEmployees = totalEmployees,
+            PresentEmployees = presentEmployees,
+            AbsentEmployees = absentEmployees,
+            RestEmployees = restEmployees,
+            LateArrivalsCount = lateArrivalsCount,
+            EmployeesList = employeesList
+                .OrderByDescending(e => e.IsAbsent)
+                .ThenByDescending(e => e.IsLate)
+                .ToList(),
+            DepartmentsList = departmentStatsMap.Values.ToList()
+        };
+    }
+
 }
