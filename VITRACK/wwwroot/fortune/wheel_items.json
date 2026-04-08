@@ -1,1 +1,104 @@
-[{"id":"1","text":"1000$","emoji":"💰","canWin":true},{"id":"2","text":"iPhone","emoji":"📱","canWin":false}]
+{
+    "participants": [
+        {
+            "name": "Samir",
+            "plate": "10 DD 101",
+            "phone": "r48 b23409723",
+            "id": "1775261588691",
+            "isWinner": true
+        },
+        {
+            "name": "Hesen",
+            "plate": "23 CA 197",
+            "phone": "675765657",
+            "id": "1775289375105",
+            "isWinner": true
+        },
+        {
+            "name": "Rəşad ",
+            "plate": "32 NR 032",
+            "phone": "+994702443388",
+            "id": "1775305849970",
+            "isWinner": true
+        },
+        {
+            "name": "Reed Haney",
+            "plate": "90 DE 223",
+            "phone": "+1 (815) 899-5391",
+            "id": "1775383166008",
+            "isWinner": true
+        },
+        {
+            "name": "Laurel Cox",
+            "plate": "12 WE 232",
+            "phone": "+1 (221) 387-4337",
+            "id": "1775383185064",
+            "isWinner": true
+        },
+        {
+            "name": "Roth Levine",
+            "plate": "12 TT 432",
+            "phone": "+1 (298) 362-7874",
+            "id": "1775392805396",
+            "isWinner": true
+        },
+        {
+            "name": "Vusal Aziziov",
+            "plate": "22 AX 109",
+            "phone": "+994 50 332 32 42",
+            "id": "1775421053875",
+            "isWinner": true
+        }
+    ],
+    "winners": [
+        {
+            "name": "Reed Haney",
+            "plate": "90 DE 223",
+            "phone": "+1 (815) 899-5391",
+            "id": "1775383166008",
+            "isWinner": false
+        },
+        {
+            "name": "Hesen",
+            "plate": "23 CA 197",
+            "phone": "675765657",
+            "id": "1775289375105",
+            "isWinner": false
+        },
+        {
+            "name": "Samir",
+            "plate": "10 DD 101",
+            "phone": "r48 b23409723",
+            "id": "1775261588691",
+            "isWinner": false
+        },
+        {
+            "name": "Vusal Aziziov",
+            "plate": "22 AX 109",
+            "phone": "+994 50 332 32 42",
+            "id": "1775421053875",
+            "isWinner": false
+        },
+        {
+            "name": "Roth Levine",
+            "plate": "12 TT 432",
+            "phone": "+1 (298) 362-7874",
+            "id": "1775392805396",
+            "isWinner": false
+        },
+        {
+            "name": "Rəşad ",
+            "plate": "32 NR 032",
+            "phone": "+994702443388",
+            "id": "1775305849970",
+            "isWinner": false
+        },
+        {
+            "name": "Laurel Cox",
+            "plate": "12 WE 232",
+            "phone": "+1 (221) 387-4337",
+            "id": "1775383185064",
+            "isWinner": false
+        }
+    ]
+}
