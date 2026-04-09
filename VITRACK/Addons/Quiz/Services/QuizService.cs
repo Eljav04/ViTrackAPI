@@ -71,7 +71,7 @@ public class QuizService : IQuizService
 
         // Simplify answer update by removing old and adding new
         _context.Answers.RemoveRange(question.Answers);
-        
+
         question.Answers = dto.Answers.Select(a => new Answer
         {
             Title = a.Title,
@@ -79,7 +79,7 @@ public class QuizService : IQuizService
         }).ToList();
 
         await _context.SaveChangesAsync();
-        
+
         dto.Id = question.Id;
         for (int i = 0; i < question.Answers.Count; i++)
         {
@@ -128,9 +128,9 @@ public class QuizService : IQuizService
     {
         int rightAnswers = 0;
         int wrongAnswers = 0;
-        
+
         var answerIdsGrouped = dto.Answers.ToDictionary(a => a.QuestionId, a => a.AnswerId);
-        
+
         var questions = await _context.Questions
             .Include(q => q.Answers)
             .ToListAsync();
@@ -155,7 +155,7 @@ public class QuizService : IQuizService
             }
         }
 
-        int points = (rightAnswers * 100) + (dto.TotalRemainingSeconds * 10);
+        int points = (rightAnswers * 100) + (dto.TotalRemainingSeconds * 3);
 
         var result = new QuizResult
         {
