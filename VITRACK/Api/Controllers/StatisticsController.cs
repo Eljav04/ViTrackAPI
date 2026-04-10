@@ -21,7 +21,7 @@ public class StatisticsController : ControllerBase
         _repository = repository;
     }
 
-    [HttpGet("attendace/get-stats-by-employee")]
+    [HttpGet("attendance/get-stats-by-employee")]
     [Authorize(Roles = "Admin,Boss")]
     public async Task<IActionResult> GetStatisticsByEmployee([FromQuery] string? employeeId = null
         , [FromQuery] DateOnly? start = null
@@ -40,7 +40,7 @@ public class StatisticsController : ControllerBase
         return Ok(stats);
     }
 
-    [HttpGet("attendace/get-my-stats")]
+    [HttpGet("attendance/get-my-stats")]
     [Authorize(Roles = Roles.User)]
     public async Task<IActionResult> GetMyStatistics([FromQuery] DateOnly? start = null
         , [FromQuery] DateOnly? end = null
@@ -61,4 +61,43 @@ public class StatisticsController : ControllerBase
         var stats = await _repository.GetStatisticsByParamsAsync(userInfo.Id, start, end, ct);
         return Ok(stats);
     }
+
+    [HttpGet("attendance/get-overall-monthly-stats")]
+    [Authorize(Roles = "Admin,Boss")]
+    public async Task<IActionResult> GetOverallMonthlyStatistics(CancellationToken ct)
+    {
+        DateOnly endDate = TimeHelper.GetBakuDate();
+        DateOnly startDate = new(endDate.Year, endDate.Month, 1);
+        var stats =
+            await _repository.GetClippedStatisticsByParamsAsync(null, startDate, endDate, ct);
+        return Ok(stats);
+    }
+
+    [HttpGet("attendance/get-my-overall-monthly-stats")]
+    [Authorize(Roles = Roles.User)]
+    public async Task<IActionResult> GetMyOverallMonthlyStatistics(CancellationToken ct)
+    {
+        DateOnly endDate = TimeHelper.GetBakuDate();
+        DateOnly startDate = new(endDate.Year, endDate.Month, 1);
+
+        UserInfo? userInfo =
+            JwtService.GetCurrentUserInfo(HttpContext.User.Identity as ClaimsIdentity);
+        if (userInfo?.Id is null) return StatusCode(500);
+
+        var stats = await
+            _repository.GetClippedStatisticsByParamsAsync(userInfo.Id, startDate, endDate, ct);
+        return Ok(stats);
+    }
+
+    [HttpGet("attendance/get-today-overall")]
+    [Authorize(Roles = "Admin,Boss")]
+    public async Task<IActionResult> GetTodayOverallStatistics(CancellationToken ct)
+    {
+        DateOnly today = TimeHelper.GetBakuDate();
+        var stats = await _repository.GetTodayOverallStatisticsAsync(today, ct);
+        return Ok(stats);
+    }
+
+
+
 }

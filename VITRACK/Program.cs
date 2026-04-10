@@ -40,6 +40,9 @@ builder.Services.AddJwtAuthentication(secretKey);
 builder.Services.AddAllowedSpecificOrigins();
 // ===== Extensions =====
 
+// Add Quiz Module isolated slice
+builder.Services.AddQuizModule(builder.Configuration);
+
 // ===== Log configuration =====
 builder.Host.UseSerilog((context, configuration) =>
     configuration.ReadFrom.Configuration(context.Configuration));

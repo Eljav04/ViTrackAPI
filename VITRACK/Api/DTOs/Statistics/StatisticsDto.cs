@@ -1,6 +1,6 @@
 using System;
 
-namespace VITRACK.Application.DTOs;
+namespace VITRACK.Api.DTOs.Statistics;
 
 public sealed class StatisticsDto
 {
